@@ -2,17 +2,17 @@ import os
 import re
 import pandas as pd
 import Data_Clean as DC
-from Global_Variables import path
+from Global_Variables import path_global
 
 def trade_second_data():
     ###############################################################################
     ### This function is for calculating trade second data;
     ###############################################################################
-    path = path.path_spot + "//binance//trades"
-    currency_list = os.listdir(path)
+    Path = path_global.path_spot + "//binance//trades"
+    currency_list = os.listdir(Path)
     for currency in currency_list:
         print(currency)
-        os.chdir(path + "//" + currency)
+        os.chdir(Path + "//" + currency)
         date_range = [re.findall(r"\d{4}-\d{2}-\d{2}", file)[0] for file in os.listdir()]
         match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
         before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]

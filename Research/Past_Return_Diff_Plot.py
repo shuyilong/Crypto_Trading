@@ -3,7 +3,7 @@ import Data_Clean as DC
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from Global_Variables import path
+from Global_Variables import path_global
 
 
 def Past_Return_Diff_Plot(pair, begin_time, end_time, period, freq):
@@ -20,10 +20,10 @@ def Past_Return_Diff_Plot(pair, begin_time, end_time, period, freq):
     ###         5) freq, Frequency of ploting
     ### OUTPUT : A graph shows the price  differenced movement of 2 currency in specify frequency
     ###############################################################################
-    os.chdir(path.path_middle + "//" + "Trade_Second_Data")
-    data_1 = pd.read_csv(pair[0 ] +"_Second_Data.csv")
+    os.chdir(path_global.path_middle + "//" + "Trade_Second_Data")
+    data_1 = pd.read_csv(pair[0] +"_Second_Data.csv")
     data_1 = DC.Choose_Period_Data(data_1, begin_time, end_time)
-    data_2 = pd.read_csv(pair[1 ] +"_Second_Data.csv")
+    data_2 = pd.read_csv(pair[1] +"_Second_Data.csv")
     data_2 = DC.Choose_Period_Data(data_2, begin_time, end_time)
     ### Record all price
     time_range = DC.time_interval(data_1['time'].iloc[0][:10 ] +" 08:00:00", \

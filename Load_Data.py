@@ -2,11 +2,11 @@ import os
 import pandas as pd
 import re
 import Middle_Value as MV
-from Global_Variables import path
+from Global_Variables import path_global
 ###############################################################################
 ###############################################################################
 
-def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, path = path.path_original):
+def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path = path_global.path_original):
 ###############################################################################
 ### This function is for loading single data file;
 ### INPUT : 1) product, choose from "Future"/"Option"/"Spot"/"Swap"
@@ -28,7 +28,7 @@ def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, path 
         if symbol == None:
             raise ValueError("You have to specify a symbol, such as : BTC, ETH")
         else:
-            os.chdir(path + "//" + product + "//" + exchange + "//" + data_type +\
+            os.chdir(Path + "//" + product + "//" + exchange + "//" + data_type +\
                      "//" + symbol)
             ### Get a file name other than the date
             example_filename = os.listdir()[0]
@@ -39,7 +39,7 @@ def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, path 
     
     ### The data format is the same except Spot
     else:
-        os.chdir(path + "//" + product + "//" + exchange + "//" + data_type)
+        os.chdir(Path + "//" + product + "//" + exchange + "//" + data_type)
         ### Get a file name other than the date
         example_filename = os.listdir()[0]
         match = re.search(r"\d{4}-\d{2}-\d{2}", example_filename)
@@ -51,7 +51,7 @@ def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, path 
      
 
 def Load_Future_Return_Diff_Data(pair,period):
-    os.chdir(path.path_middle + "//" + "Future_Return_Diff")
+    os.chdir(path_global.path_middle + "//" + "Future_Return_Diff")
     if os.path.exists('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv"):
         return pd.read_csv('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv")
     else:
