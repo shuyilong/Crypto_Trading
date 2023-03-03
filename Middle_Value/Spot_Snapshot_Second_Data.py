@@ -3,26 +3,33 @@ import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 import re
-from numba import cuda
-import math
 
-Path = path_global.path_spot() + "//binance//book_snapshot_25"
-os.chdir(Path + "//ADA")
-date_range = [re.findall(r"\d{4}-\d{2}-\d{2}", file)[0] for file in os.listdir()]
-match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
-before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
+def spot_snapshot_second_data():
+    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    currency_list = os.listdir(Path)
+    for currency in currency_list:
+        os.chdir(Path + "//" + currency)
+        date_range = [re.findall(r"\d{4}-\d{2}-\d{2}", file)[0] for file in os.listdir()]
+        match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
+        before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
+        Second_Data = pd.DataFrame()
+        for date in date_range:
+            target_file = before + date + after
+            data = pd.read_csv(target_file)
+            data['time'] = data['timestamp'].apply(lambda x: DC.TimeStamp_to_NormalTime(x))
+            data = data.iloc[:,4:]
+            data['spread'] = data['asks[0].price'] - data['bids[0].price']
+            data = data.groupby('time').apply(lambda x: x.iloc[-1])
+            Second_Data = pd.concat([Second_Data, data])
 
-@cuda.jit
-def gpu_read(date_range, result, n=149):
-    idx = cuda.threadIdx.x + cuda.blockDim.x * cuda.blockIdx.x
-    if idx < n :
-        target_file = pd.read_csv(before + date_range[idx] + after)
-        result[idx] = len(target_file)
+        Second_Data.index = range(len(Second_Data))
+        file_path = os.chdir(path_global.path_middle() + '//Spot_Snapshot_Second_Data')
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        os.chdir(file_path)
+        Second_Data.to_csv(currency + "_Second_Data.csv")
 
-gpu_result = cuda.device_array(149)
-threads_per_block = 1024
-blocks_per_grid = math.ceil(149 / threads_per_block)
-gpu_read[blocks_per_grid, threads_per_block](date_range, gpu_result, n=149)
-cuda.synchronize()
+
+
 
 

@@ -39,3 +39,8 @@ def best_bid_diff(symbol, period, begin_date="2022-10-01", end_date= "2023-02-21
 
 
 
+            ### Get Statistic Data
+            Second_Data = data[['time','asks[0].price']].groupby('time').agg({'asks[0].price': ['mean'], \
+                                'bids[0].price': ['mean'], 'spread':['mean'], 'ask_depth_1':['mean'],\
+                                'ask_depth_5':['mean'], 'ask_depth_15':['mean'], 'bid_depth_1':['mean'],\
+                                'bid_depth_5':['mean'], 'bid_depth_15':['mean']})
