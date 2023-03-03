@@ -4,6 +4,7 @@ import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
+from tqdm import tqdm
 
 begin_date = "2022-10-01"
 end_date = "2023-02-21"
@@ -29,7 +30,7 @@ def process_data(date, symbol, period):
     file = pd.concat([pd.read_csv(before + target + after) for target in file_read])
     file['time'] = file['timestamp'].apply(lambda x: DC.TimeStamp_to_NormalTime(x))
 
-    for second in time_range:
+    for second in tqdm(time_range, total=len(time_range)):
         calculation_time = DC.time_interval(DC.Date_Addtion(second, "second", -period), \
                                             second, 1)
         calculation_data = file[file['time'].isin(calculation_time)]

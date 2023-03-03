@@ -17,12 +17,10 @@ def best_bid_diff(symbol, period, begin_date="2022-10-01", end_date= "2023-02-21
     Final_Result = pd.DataFrame()
 
     pool = mp.Pool(processes=mp.cpu_count())
-    results = []
-    for date in tqdm_notebook(date_range, desc='Processing data'):
-        result = pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period))
-        results.append(result)
+    results = [pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
+               for date in date_range]
 
-    for result in tqdm(results, total=len(date_range)):
+    for result in tqdm(results, total=len(results)):
         Final_Result = pd.concat([Final_Result, result.get()])
     Final_Result.index = range(len(Final_Result))
 
