@@ -6,7 +6,7 @@ import pandas as pd
 import time
 import multiprocessing as mp
 from Multi_Processing import Spot_Snapshot_Single_best_bid_diff
-from tqdm import tqdm
+from tqdm.notebook import tqdm_notebook
 
 def best_bid_diff(symbol, period, begin_date="2022-10-01", end_date= "2023-02-21"):
     Path = path_global.path_spot() + "//binance//book_snapshot_25"
@@ -20,7 +20,7 @@ def best_bid_diff(symbol, period, begin_date="2022-10-01", end_date= "2023-02-21
     results = [pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
                for date in date_range]
 
-    for result in tqdm(results, total=len(results)):
+    for result in tqdm_notebook(results, desc='Processing data'):
         Final_Result = pd.concat([Final_Result, result.get()])
     Final_Result.index = range(len(Final_Result))
 
