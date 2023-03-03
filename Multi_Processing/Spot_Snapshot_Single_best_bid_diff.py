@@ -30,7 +30,6 @@ def process_data(date, symbol, period):
     file['time'] = file['timestamp'].apply(lambda x: DC.TimeStamp_to_NormalTime(x))
 
     for second in time_range:
-        print(second)
         calculation_time = DC.time_interval(DC.Date_Addtion(second, "second", -period), \
                                             second, 1)
         calculation_data = file[file['time'].isin(calculation_time)]
