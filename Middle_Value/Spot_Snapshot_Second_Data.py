@@ -3,6 +3,9 @@ import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 import re
+from Multi_Processing import Spot_Snapshot_Second_Data_Use
+import multiprocessing as mp
+from tqdm import tqdm
 
 def spot_snapshot_second_data():
     Path = path_global.path_spot() + "//binance//book_snapshot_25"
@@ -13,20 +16,18 @@ def spot_snapshot_second_data():
         match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
         before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
         Second_Data = pd.DataFrame()
-        for date in date_range:
-            target_file = before + date + after
-            data = pd.read_csv(target_file)
-            data['time'] = data['timestamp'].apply(lambda x: DC.TimeStamp_to_NormalTime(x))
-            data = data.iloc[:,4:]
-            data['spread'] = data['asks[0].price'] - data['bids[0].price']
-            data = data.groupby('time').apply(lambda x: x.iloc[-1])
-            Second_Data = pd.concat([Second_Data, data])
 
+        pool = mp.Pool(processes=mp.cpu_count())
+        results = [pool.apply_async(Spot_Snapshot_Second_Data_Use.process_date, args=(date,)) \
+                   for date in date_range]
+
+        for result in tqdm(results, total=len(date_range)):
+            Second_Data = pd.concat([Second_Data, result.get()])
         Second_Data.index = range(len(Second_Data))
-        file_path = os.chdir(path_global.path_middle() + '//Spot_Snapshot_Second_Data')
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        os.chdir(file_path)
+        file_path = path_global.path_middle()
+        if not os.path.exists(file_path + '//Spot_Snapshot_Second_Data'):
+            os.makedirs(file_path + '//Spot_Snapshot_Second_Data')
+        os.chdir(file_path + '//Spot_Snapshot_Second_Data')
         Second_Data.to_csv(currency + "_Second_Data.csv")
 
 
