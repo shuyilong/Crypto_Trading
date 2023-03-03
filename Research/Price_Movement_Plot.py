@@ -17,7 +17,7 @@ def Price_Movement_Plot(currency_list, begin_date, end_date, freq):
     ### OUTPUT : A graph shows the trade price movement of 2 currency in specify frequency
     ###############################################################################
     ### Plz modify this path to middle value path
-    os.chdir(path_global.path_middle +"// " +"Trade_Second_Data")
+    os.chdir(path_global.path_middle() +"// " +"Trade_Second_Data")
     ### Save all currency data
     Close_Price = []
     for currency in currency_list:

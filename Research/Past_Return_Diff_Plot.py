@@ -20,7 +20,7 @@ def Past_Return_Diff_Plot(pair, begin_time, end_time, period, freq):
     ###         5) freq, Frequency of ploting
     ### OUTPUT : A graph shows the price  differenced movement of 2 currency in specify frequency
     ###############################################################################
-    os.chdir(path_global.path_middle + "//" + "Trade_Second_Data")
+    os.chdir(path_global.path_middle() + "//" + "Trade_Second_Data")
     data_1 = pd.read_csv(pair[0] +"_Second_Data.csv")
     data_1 = DC.Choose_Period_Data(data_1, begin_time, end_time)
     data_2 = pd.read_csv(pair[1] +"_Second_Data.csv")

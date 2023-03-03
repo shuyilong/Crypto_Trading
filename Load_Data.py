@@ -6,7 +6,7 @@ from Global_Variables import path_global
 ###############################################################################
 ###############################################################################
 
-def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path = path_global.path_original):
+def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path = path_global.path_original()):
 ###############################################################################
 ### This function is for loading single data file;
 ### INPUT : 1) product, choose from "Future"/"Option"/"Spot"/"Swap"
@@ -51,7 +51,7 @@ def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path 
      
 
 def Load_Future_Return_Diff_Data(pair,period):
-    os.chdir(path_global.path_middle + "//" + "Future_Return_Diff")
+    os.chdir(path_global.path_middle() + "//" + "Future_Return_Diff")
     if os.path.exists('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv"):
         return pd.read_csv('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv")
     else:

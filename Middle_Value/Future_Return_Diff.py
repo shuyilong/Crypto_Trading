@@ -13,7 +13,7 @@ def future_return_diff(pair, period, start="2022-10-02 00:00:00", end = "2023-02
     ###         3) start, Start time of statistics
     ###         4) end, End time of statistics
     ###############################################################################
-    os.chdir(path_global.path_middle + "//" + "Trade_Second_Data")
+    os.chdir(path_global.path_middle() + "//" + "Trade_Second_Data")
     data_1 = pd.read_csv(pair[0 ] +"_Second_Data.csv")[['time', 'price']]
     data_2 = pd.read_csv(pair[1 ] +"_Second_Data.csv")[['time', 'price']]
 
@@ -27,11 +27,12 @@ def future_return_diff(pair, period, start="2022-10-02 00:00:00", end = "2023-02
     Close_Price.columns = column_name
     Close_Price = Close_Price.fillna(method='ffill')
     Close_Price = Close_Price.fillna(method='bfill')
+    Close_Price[pair[0]], Close_Price[pair[1]] = Close_Price[pair[0]].shift(1), Close_Price[pair[1]].shift(1)
     ### Calculate return according to the specified frequency
     Close_Price[pair[0]] = Close_Price[pair[0]].shift(-period) / Close_Price[pair[0]]
     Close_Price[pair[1]] = Close_Price[pair[1]].shift(-period) / Close_Price[pair[1]]
     Close_Price['diff'] = Close_Price[pair[0]] - Close_Price[pair[1]]
     Close_Price = Close_Price[(Close_Price['time'] >= start) & \
                               (Close_Price['time'] < end)][['time', 'diff']]
-    os.chdir(path_global.path_middle + "//" + "Future_Return_Diff")
+    os.chdir(path_global.path_middle() + "//" + "Future_Return_Diff")
     Close_Price.to_csv(pair[0 ] +" and  " +pair[1 ]+ " " + str(period) + " ret diff.csv")
