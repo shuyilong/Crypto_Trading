@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
+from functools import lru_cache
 
 Path = path_global.path_spot() + "//binance//book_snapshot_25"
 currency = os.listdir(Path)[0]
@@ -10,6 +11,7 @@ os.chdir(Path + "//" + currency)
 match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
 before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
 
+@lru_cache()
 def process_date(date):
     target_file = before + date + after
     data = pd.read_csv(target_file)
