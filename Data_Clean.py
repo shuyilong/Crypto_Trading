@@ -91,4 +91,27 @@ def Choose_Period_Data(df, begin_time, end_time):
     df = df[(df['timestamp'] >= begin_time) & (df['timestamp'] <= end_time)]
     return df
 
-
+def Date_Addtion(date, date_type, num):
+    ###############################################################################
+    ### The purpose of this equation is to add or subtract time from the specified date;
+    ### INPUT : 1) date, target date, in "%Y-%m-%d" or '%Y-%m-%d %H:%M:%S' format
+    ###         2) date_tyoe, The type of time you want to increase, choose from
+    ###            "day", "hour", "second"
+    ###         3) num, the amount of time you want to add
+    ### OUTPUT : Time after adding the specified amount of time
+    ###############################################################################
+    if date_type == "day":
+        date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+        delta = datetime.timedelta(days=num)
+        new_date_obj = date_obj + delta
+        return new_date_obj.strftime("%Y-%m-%d")
+    elif date_type == "hour":
+        date_obj = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        delta = datetime.timedelta(hours=num)
+        new_date_obj = date_obj + delta
+        return new_date_obj.strftime('%Y-%m-%d %H:%M:%S')
+    elif date_type == "second":
+        date_obj = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        delta = datetime.timedelta(seconds=num)
+        new_date_obj = date_obj + delta
+        return new_date_obj.strftime('%Y-%m-%d %H:%M:%S')
