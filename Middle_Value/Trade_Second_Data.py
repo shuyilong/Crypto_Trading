@@ -37,8 +37,8 @@ def trade_second_data():
         Final_Result_List = pd.concat(Final_Result_List)
         Final_Result_List.index = range(len(Final_Result_List))
         file_path = path_global.path_middle()
-        if not os.path.exists(path_global.path_middle() + '//Trade_Second_Data'):
-            os.makedirs(path_global.path_middle() + '//Trade_Second_Data')
-        os.chdir(path_global.path_middle() + '//Trade_Second_Data')
+        if not os.path.exists(path_global.path_middle() + '//Middle_Second_Data'):
+            os.makedirs(path_global.path_middle() + '//Middle_Second_Data')
+        os.chdir(path_global.path_middle() + '//Middle_Second_Data')
         Final_Result_List.to_csv(currency + "_Second_Data.csv")
 
