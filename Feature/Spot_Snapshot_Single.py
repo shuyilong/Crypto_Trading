@@ -164,3 +164,9 @@ def ask_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(
         os.makedirs(file_path + '//ask_'+str(n)+'_depth_'+data_type)
     os.chdir(file_path + '//ask_'+str(n)+'_depth_'+data_type)
     Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+
+###################################################################################################
+def window_return(symbol, period, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+    Path = path_global.path_middle()
+
+
