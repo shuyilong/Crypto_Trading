@@ -11,7 +11,7 @@ def trade_second_data():
     ###############################################################################
     ### This function is for calculating trade second data;
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//trades"
+    Path = path_global.path_spot() + "//binance//book_snapshot_25"
     currency_list = os.listdir(Path)
     for currency in currency_list:
         print(currency)
