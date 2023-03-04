@@ -8,8 +8,8 @@ from Global_Variables import path_global
 from functools import lru_cache
 from tqdm import tqdm
 
-begin_date = "2022-10-01"
-end_date = "2023-02-21"
+begin_date = path_global.begin_date()
+end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//book_snapshot_25"
 
 
