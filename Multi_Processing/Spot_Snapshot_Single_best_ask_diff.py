@@ -35,9 +35,9 @@ def process_data(date, symbol, period):
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
 
-    rolling = file['bids[0].price'].rolling(window=period, min_periods=1)
+    rolling = file['asks[0].price'].rolling(window=period, min_periods=1)
     file['diff'] = rolling.apply(lambda x: x[-1] - x[0], raw=True).shift(1)
-    file['feature'] = file['diff'] / file['bids[0].price'].shift(period)
+    file['feature'] = file['diff'] / file['asks[0].price'].shift(period)
 
     start_time = pd.Timestamp(date + ' 00:00:00')
     end_time = pd.Timestamp(date + ' 23:59:59')

@@ -49,13 +49,8 @@ def get_date_range(begin_date, end_date, step=1):
 ###         3) end_date, e.g : "2022-10-10"
 ### OUTPUT : Normal time
 ###############################################################################
-    begin = datetime.datetime.strptime(begin_date, "%Y-%m-%d")
-    end = datetime.datetime.strptime(end_date, "%Y-%m-%d")
-    delta = end - begin
-    dates = []
-    for i in range(0, delta.days + 1, step):
-        date = begin + datetime.timedelta(days=i)
-        dates.append(date.strftime("%Y-%m-%d"))
+    dates = [(datetime.datetime.strptime(begin_date, "%Y-%m-%d") + datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+             for i in range(0, (datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(begin_date, "%Y-%m-%d")).days + 1, step)]
     return dates
 
 
@@ -68,14 +63,13 @@ def time_interval(begin_time, end_time, interval):
 ###         3) interval, in seconds
 ### OUTPUT : list of all time
 ###############################################################################
-    start = time.strptime(begin_time, '%Y-%m-%d %H:%M:%S')
-    end = time.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+    start = datetime.datetime.strptime(begin_time, '%Y-%m-%d %H:%M:%S')
+    end = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
     result = []
     current = start
     while current < end:
-        result.append(time.strftime('%Y-%m-%d %H:%M:%S', current))
-        current = time.mktime(current) + interval
-        current = time.localtime(current)
+        result.append(current.strftime('%Y-%m-%d %H:%M:%S'))
+        current += datetime.timedelta(seconds=interval)
     return result
 
 
@@ -115,3 +109,20 @@ def Date_Addtion(date, date_type, num):
         delta = datetime.timedelta(seconds=num)
         new_date_obj = date_obj + delta
         return new_date_obj.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def Timestamp_List(start_time, end_time, interval):
+    ###############################################################################
+    ### The purpose of this function is to determine the time stamp of the given frequency
+    ### between outputs according to the start and end time of the input.;
+    ### INPUT : 1) start_time, in 16 timestamp format
+    ###         2) end_time, in 16 timestamp format
+    ###         3) interval, in seconds
+    ### OUTPUT : timestamp list
+    ###############################################################################
+    second_start = start_time // 1000000
+    second_end = end_time // 1000000
+    timestamps = []
+    for second in range(second_start, second_end, interval):
+        timestamps.append(second)
+    return timestamps
