@@ -118,9 +118,9 @@ def bid_n_depth(symbol, period, n, begin_date=path_global.begin_date(), end_date
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//bid_n_depth'):
-        os.makedirs(file_path + '//bid_n_depth')
-    os.chdir(file_path + '//bid_n_depth')
+    if not os.path.exists(file_path + '//bid_'+str(n)+'_depth'):
+        os.makedirs(file_path + '//bid_'+str(n)+'_depth')
+    os.chdir(file_path + '//bid_'+str(n)+'_depth')
     Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
 
 ###################################################################################################
@@ -157,7 +157,7 @@ def ask_n_depth(symbol, period, n, begin_date=path_global.begin_date(), end_date
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//ask_n_depth'):
-        os.makedirs(file_path + '//ask_n_depth')
-    os.chdir(file_path + '//ask_n_depth')
+    if not os.path.exists(file_path + '//ask_'+str(n)+'_depth'):
+        os.makedirs(file_path + '//ask_'+str(n)+'_depth')
+    os.chdir(file_path + '//ask_'+str(n)+'_depth')
     Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
