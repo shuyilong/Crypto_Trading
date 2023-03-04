@@ -167,6 +167,20 @@ def ask_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(
 
 ###################################################################################################
 def window_return(symbol, period, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
-    Path = path_global.path_middle()
+    Path = path_global.path_middle_second_data()
+    os.chdir(Path)
+    files = os.listdir(Path)
 
-
+    cpu_num = 32
+    Final_Result_List = []
+    for i in range(len(files) // cpu_num + (len(files) % cpu_num > 0)):
+        Final_Result = pd.DataFrame()
+        date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
+        pool = mp.Pool(processes= cpu_num)
+        results = [pool.apply_async(Spot_Snapshot_Single_.process_data, args=(date, symbol, period, n, data_type)) \
+                   for date in date_range]
+        for result in tqdm(results):
+            Final_Result = pd.concat([Final_Result, result.get()])
+        Final_Result_List.append(Final_Result)
+        pool.close()
+        pool.join()

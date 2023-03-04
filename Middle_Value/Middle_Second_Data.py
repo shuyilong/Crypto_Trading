@@ -7,7 +7,7 @@ import multiprocessing as mp
 from Multi_Processing import Trade_Second_Data_Use
 from tqdm import tqdm
 
-def trade_second_data():
+def middle_second_data():
     ###############################################################################
     ### This function is for calculating trade second data;
     ###############################################################################
