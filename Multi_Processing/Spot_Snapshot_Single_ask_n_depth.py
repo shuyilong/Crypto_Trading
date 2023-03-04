@@ -43,9 +43,10 @@ def process_data(date, symbol, period, n, data_type):
     func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
                  "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
     file['feature'] = func_dict[data_type]().shift(1)
+    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')
     end_time = pd.Timestamp(date + ' 23:59:59')
     mask = file.index.slice_indexer(start_time, end_time)
-    file = file['feature'].iloc[mask]
+    file = file[['second_timestamp','feature']].iloc[mask]
     return file

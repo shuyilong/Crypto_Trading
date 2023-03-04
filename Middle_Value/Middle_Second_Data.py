@@ -4,7 +4,7 @@ import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 import multiprocessing as mp
-from Multi_Processing import Trade_Second_Data_Use
+from Multi_Processing import Middle_Second_Data_Use
 from tqdm import tqdm
 
 def middle_second_data():
@@ -13,12 +13,13 @@ def middle_second_data():
     ###############################################################################
     Path = path_global.path_spot() + "//binance//book_snapshot_25"
     currency_list = os.listdir(Path)
+    Date_Range = DC.get_date_range(path_global.begin_date(),path_global.end_date())
+    os.chdir(Path + "//" + currency_list[0])
+    match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
+    before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
     for currency in currency_list:
         print(currency)
         os.chdir(Path + "//" + currency)
-        Date_Range = [re.findall(r"\d{4}-\d{2}-\d{2}", file)[0] for file in os.listdir()]
-        match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
-        before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
 
         cpu_num = 32
         Final_Result_List = []
@@ -26,7 +27,7 @@ def middle_second_data():
             Final_Result = pd.DataFrame()
             date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
             pool = mp.Pool(processes=cpu_num)
-            results = [pool.apply_async(Trade_Second_Data_Use.process_data, args=(currency, date, \
+            results = [pool.apply_async(Middle_Second_Data_Use.process_data, args=(currency, date, \
                             before, after)) for date in date_range]
             for result in tqdm(results):
                 Final_Result = pd.concat([Final_Result, result.get()])
