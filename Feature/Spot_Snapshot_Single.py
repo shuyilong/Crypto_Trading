@@ -5,7 +5,8 @@ import re
 import pandas as pd
 import time
 import multiprocessing as mp
-import Multi_Processing as MPF
+from Multi_Processing import Spot_Snapshot_Single_best_bid_diff, Spot_Snapshot_Single_best_ask_diff, \
+    Spot_Snapshot_Single_ask_n_depth, Spot_Snapshot_Single_bid_n_depth
 from tqdm import tqdm
 import math
 
@@ -30,7 +31,7 @@ def best_bid_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(MPF.Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
+        results = [pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
                    for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -68,7 +69,7 @@ def best_ask_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(MPF.Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
+        results = [pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
                    for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -107,7 +108,7 @@ def bid_n_depth(symbol, period, n, begin_date=path_global.begin_date(), end_date
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(MPF.Spot_Snapshot_Single_bid_n_depth.process_data, args=(date, symbol, period, n)) \
+        results = [pool.apply_async(Spot_Snapshot_Single_bid_n_depth.process_data, args=(date, symbol, period, n)) \
                    for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -146,7 +147,7 @@ def ask_n_depth(symbol, period, n, begin_date=path_global.begin_date(), end_date
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(MPF.Spot_Snapshot_Single_ask_n_depth.process_data, args=(date, symbol, period, n)) \
+        results = [pool.apply_async(Spot_Snapshot_Single_ask_n_depth.process_data, args=(date, symbol, period, n)) \
                    for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
