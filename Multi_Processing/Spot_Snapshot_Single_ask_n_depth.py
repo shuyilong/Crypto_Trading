@@ -14,7 +14,7 @@ Path = path_global.path_spot() + "//binance//book_snapshot_25"
 
 
 @lru_cache()
-def process_data(date, symbol, period, n):
+def process_data(date, symbol, period, n, data_type):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
@@ -40,7 +40,9 @@ def process_data(date, symbol, period, n):
     file = file.reindex(all_seconds).fillna(method="ffill")
 
     rolling = file['n_depth'].rolling(window=period, min_periods=1)
-    file['feature'] = rolling.mean().shift(1)
+    func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
+                 "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
+    file['feature'] = func_dict[data_type]().shift(1)
 
     start_time = pd.Timestamp(date + ' 00:00:00')
     end_time = pd.Timestamp(date + ' 23:59:59')
