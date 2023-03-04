@@ -169,18 +169,27 @@ def ask_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(
 def window_return(symbol, period, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
     Path = path_global.path_middle_second_data()
     os.chdir(Path)
-    files = os.listdir(Path)
+    file = pd.read_csv(symbol + "_Second_data.csv")
+    file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
+    file = file.set_index('second_timestamp')
+    all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
+    file = file.reindex(all_seconds).fillna(method="ffill")
+    file['ret'] = file['middle_price'] / file['middle_price'].shift(1) - 1
 
-    cpu_num = 32
-    Final_Result_List = []
-    for i in range(len(files) // cpu_num + (len(files) % cpu_num > 0)):
-        Final_Result = pd.DataFrame()
-        date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
-        pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(Spot_Snapshot_Single_.process_data, args=(date, symbol, period, n, data_type)) \
-                   for date in date_range]
-        for result in tqdm(results):
-            Final_Result = pd.concat([Final_Result, result.get()])
-        Final_Result_List.append(Final_Result)
-        pool.close()
-        pool.join()
+    rolling = file['ret'].rolling(window=period, min_periods=1)
+    func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
+                 "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
+    file['feature'] = func_dict[data_type]().shift(1)
+    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10 ** 9
+
+    start_time = pd.Timestamp(begin_date + ' 00:00:00')
+    end_time = pd.Timestamp(end_date + ' 23:59:59')
+    mask = file.index.slice_indexer(start_time, end_time)
+    file = file[['second_timestamp', 'feature']].iloc[mask]
+    file.index = range(len(file))
+    file_path = path_global.path_middle() + "//Features"
+    if not os.path.exists(file_path + '//window_return_'+data_type):
+        os.makedirs(file_path + '//window_return_'+data_type)
+    os.chdir(file_path + '//window_return_'+data_type)
+    file.to_csv(symbol + "_" + str(period) + ".csv")
+

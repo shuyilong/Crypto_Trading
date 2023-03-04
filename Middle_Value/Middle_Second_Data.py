@@ -16,7 +16,7 @@ def middle_second_data():
     Date_Range = DC.get_date_range(path_global.begin_date(),path_global.end_date())
     os.chdir(Path + "//" + currency_list[0])
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
-    before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
+    before, after = os.listdir()[0][:match.start()], os.listdir()[0][-11:]
     for currency in currency_list:
         print(currency)
         os.chdir(Path + "//" + currency)
