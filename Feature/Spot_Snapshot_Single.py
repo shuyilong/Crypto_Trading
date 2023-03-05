@@ -202,14 +202,16 @@ def window_return(symbol, period, data_type, begin_date=path_global.begin_date()
     file.to_csv(symbol + "_" + str(period) + ".csv")
 
 ###################################################################################################
-def spread_return(symbol, period, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+from Multi_Processing import Spot_Snapshot_Single_spread_return
+def spread_return(symbol, period, data_type, n, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
     ###############################################################################
     ### This function is for calculating the statistic of spread return;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
     ###         3) data_type, choose from "mean","max","min","std","median","sum"
-    ###         4) begin_date, default in "2022-10-01"
-    ###         5) end, default in "2022-10-01"
+    ###         4) n, n-th ask and bid, from 0 to 24
+    ###         5) begin_date, default in "2022-10-01"
+    ###         6) end, default in "2022-10-01"
     ###############################################################################
     Path = path_global.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
@@ -224,7 +226,7 @@ def spread_return(symbol, period, data_type, begin_date=path_global.begin_date()
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(Spot_Snapshot_Single_.process_data, args=(date, symbol, period, n, data_type)) \
+        results = [pool.apply_async(Spot_Snapshot_Single_spread_return.process_data, args=(date, symbol, period, n, data_type)) \
                    for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])

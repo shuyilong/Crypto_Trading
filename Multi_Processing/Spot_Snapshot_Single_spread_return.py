@@ -33,7 +33,7 @@ def process_data(date, symbol, period, n, data_type):
     file = file.set_index('second_timestamp')
 
     file['middle_price'] = (file['asks[0].price'] + file['bids[0].price'])/2
-    file['spread_return'] = (file['asks[0].price'] - file['bids[0].price']) / file['middle_price']
+    file['spread_return'] = (file['asks['+str(n)+'].price'] - file['bids['+str(n)+'].price']) / file['middle_price']
     file = file[['spread_return']].groupby(pd.Grouper(freq='1s')).mean()
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
