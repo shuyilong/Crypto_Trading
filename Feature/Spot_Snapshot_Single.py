@@ -242,3 +242,87 @@ def spread_return(symbol, period, data_type, n, begin_date=path_global.begin_dat
     os.chdir(file_path + '//spread_return_'+data_type)
     Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
 
+###################################################################################################
+from Multi_Processing import Spot_Snapshot_Single_snapshot_derivative
+def snapshot_derivative(symbol, period, data_type, target_data, n, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+    ###############################################################################
+    ### This function is for calculating the statistic of spread return;
+    ### INPUT : 1) symbol, e.g: "BTC"
+    ###         2) period, period of return calculation, in seconds
+    ###         3) data_type, choose from "mean","max","min","std","median","sum"
+    ###         4) target_data, choose from "ask_price","bid_price","middle_price",
+    ###                                     "ask_amount","bid_amound"
+    ###         5) n, n-th ask and bid, from 0 to 24
+    ###         6) begin_date, default in "2022-10-01"
+    ###         7) end, default in "2022-10-01"
+    ###############################################################################
+    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    os.chdir(Path + "//" + symbol)
+    files = sorted(os.listdir())
+    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
+    before, after = files[0][:match.start()], files[0][match.end():]
+    Date_Range = DC.get_date_range(begin_date, end_date)
+
+    cpu_num = 32
+    Final_Result_List = []
+    for i in range(len(Date_Range) // cpu_num + (len(Date_Range) % cpu_num > 0)):
+        Final_Result = pd.DataFrame()
+        date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
+        pool = mp.Pool(processes=cpu_num)
+        results = [
+            pool.apply_async(Spot_Snapshot_Single_snapshot_derivative.process_data, \
+                    args=(date, symbol, period, n, data_type, target_data)) for date in date_range]
+        for result in tqdm(results):
+            Final_Result = pd.concat([Final_Result, result.get()])
+        Final_Result_List.append(Final_Result)
+        pool.close()
+        pool.join()
+
+    Final_Result_List = pd.concat(Final_Result_List)
+    Final_Result_List.index = range(len(Final_Result_List))
+    file_path = path_global.path_middle() + "//Features"
+    if not os.path.exists(file_path + '//snapshot_derivative//' + target_data + '_' + data_type):
+        os.makedirs(file_path + '//snapshot_derivative//' + target_data + '_' + data_type)
+    os.chdir(file_path + '//snapshot_derivative//' + target_data + '_' + data_type)
+    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+
+###################################################################################################
+from Multi_Processing import Spot_Snapshot_Single_semi_std
+def semi_std(symbol, period, direction, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+    ###############################################################################
+    ### This function is for calculating the semi-std of middle price;
+    ### INPUT : 1) symbol, e.g: "BTC"
+    ###         2) period, period of return calculation, in seconds
+    ###         3) direction, choose from "positive","negative"
+    ###         4) begin_date, default in "2022-10-01"
+    ###         5) end, default in "2022-10-01"
+    ###############################################################################
+    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    os.chdir(Path + "//" + symbol)
+    files = sorted(os.listdir())
+    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
+    before, after = files[0][:match.start()], files[0][match.end():]
+    Date_Range = DC.get_date_range(begin_date, end_date)
+
+    cpu_num = 32
+    Final_Result_List = []
+    for i in range(len(Date_Range) // cpu_num + (len(Date_Range) % cpu_num > 0)):
+        Final_Result = pd.DataFrame()
+        date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
+        pool = mp.Pool(processes=cpu_num)
+        results = [
+            pool.apply_async(Spot_Snapshot_Single_semi_std.process_data, args=(date, symbol, period, direction)) \
+            for date in date_range]
+        for result in tqdm(results):
+            Final_Result = pd.concat([Final_Result, result.get()])
+        Final_Result_List.append(Final_Result)
+        pool.close()
+        pool.join()
+
+    Final_Result_List = pd.concat(Final_Result_List)
+    Final_Result_List.index = range(len(Final_Result_List))
+    file_path = path_global.path_middle() + "//Features"
+    if not os.path.exists(file_path + '//semi_std_'+direction):
+        os.makedirs(file_path + '//semi_std_'+direction)
+    os.chdir(file_path + '//semi_std_'+direction)
+    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
