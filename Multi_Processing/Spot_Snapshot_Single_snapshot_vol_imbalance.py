@@ -14,7 +14,7 @@ Path = path_global.path_spot() + "//binance//book_snapshot_25"
 
 
 @lru_cache()
-def process_data(date, symbol, period):
+def process_data(date, symbol, period, n, data_type, target_data):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
@@ -32,17 +32,17 @@ def process_data(date, symbol, period):
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
 
-    file['middle_price'] = (file['asks[0].price'] + file['bids[0].price'])/2
-    file = file.resample('1S').last()
-    all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
-    file = file.reindex(all_seconds).fillna(method="ffill")
+    file = file[['asks['+str(n)+'].amount','bids['+str(n)+'].amount']].groupby(pd.Grouper(freq='1s')).mean()
+    file['vol_imb'] = file['bids['+str(n)+'].amount'] / (file['asks['+str(n)+'].amount'] + file['bids['+str(n)+'].amount'])
 
-    file['mid_ret_quar'] = ((file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000) ** 4
-    file['feature'] = period / 3 * file['mid_ret_quar'].rolling(window=period, min_periods=2).sum().shift(1)
-    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
+    rolling = file['vol_imb'].rolling(window=period, min_periods=1)
+    func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
+                 "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
+    file['feature'] = func_dict[data_type]().shift(1)
+    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10 ** 9
 
     start_time = pd.Timestamp(date + ' 00:00:00')
     end_time = pd.Timestamp(date + ' 23:59:59')
     mask = file.index.slice_indexer(start_time, end_time)
-    file = file[['second_timestamp','feature']].fillna(0).iloc[mask]
+    file = file[['second_timestamp', 'feature']].iloc[mask]
     return file
