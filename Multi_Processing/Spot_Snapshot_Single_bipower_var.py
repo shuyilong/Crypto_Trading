@@ -14,7 +14,7 @@ Path = path_global.path_spot() + "//binance//book_snapshot_25"
 
 
 @lru_cache()
-def process_data(date, symbol, period, direction):
+def process_data(date, symbol, period, lag):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
@@ -37,14 +37,9 @@ def process_data(date, symbol, period, direction):
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
 
-    file['mid_ret'] = (file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000
-
-    if direction == "positive":
-        file['feature'] = file['mid_ret'].rolling(window=period, min_periods=2).apply(
-            lambda x: x[x > 0].std(ddof=0)).shift(1)
-    elif direction == "negative":
-        file['feature'] = file['mid_ret'].rolling(window=period, min_periods=2).apply(
-            lambda x: x[x < 0].std(ddof=0)).shift(1)
+    file['abs_mid_ret'] = abs(file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000
+    file['ret_product'] = file['abs_mid_ret'].shift(lag) * file['abs_mid_ret']
+    file['feature'] = file['ret_product'].rolling(window=period, min_periods=2).sum().shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

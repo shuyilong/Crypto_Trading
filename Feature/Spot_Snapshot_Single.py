@@ -182,7 +182,7 @@ def window_return(symbol, period, data_type, begin_date=path_global.begin_date()
     file = file.set_index('second_timestamp')
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
-    file['ret'] = file['middle_price'] / file['middle_price'].shift(1) - 1
+    file['ret'] = (file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000
 
     rolling = file['ret'].rolling(window=period, min_periods=1)
     func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
@@ -326,3 +326,47 @@ def semi_std(symbol, period, direction, begin_date=path_global.begin_date(), end
         os.makedirs(file_path + '//semi_std_'+direction)
     os.chdir(file_path + '//semi_std_'+direction)
     Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+
+###################################################################################################
+from Multi_Processing import Spot_Snapshot_Single_bipower_var
+def bipower_var(symbol, period, lag, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+    ###############################################################################
+    ### This function is for calculating the bipower-variance of middle price;
+    ### INPUT : 1) symbol, e.g: "BTC"
+    ###         2) period, period of return calculation, in seconds
+    ###         3) lag, int, lagged period
+    ###         4) begin_date, default in "2022-10-01"
+    ###         5) end, default in "2022-10-01"
+    ###############################################################################
+    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    os.chdir(Path + "//" + symbol)
+    files = sorted(os.listdir())
+    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
+    before, after = files[0][:match.start()], files[0][match.end():]
+    Date_Range = DC.get_date_range(begin_date, end_date)
+
+    cpu_num = 32
+    Final_Result_List = []
+    for i in range(len(Date_Range) // cpu_num + (len(Date_Range) % cpu_num > 0)):
+        Final_Result = pd.DataFrame()
+        date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
+        pool = mp.Pool(processes=cpu_num)
+        results = [
+            pool.apply_async(Spot_Snapshot_Single_bipower_var.process_data, args=(date, symbol, period, lag)) \
+            for date in date_range]
+        for result in tqdm(results):
+            Final_Result = pd.concat([Final_Result, result.get()])
+        Final_Result_List.append(Final_Result)
+        pool.close()
+        pool.join()
+
+    Final_Result_List = pd.concat(Final_Result_List)
+    Final_Result_List.index = range(len(Final_Result_List))
+    file_path = path_global.path_middle() + "//Features"
+    if not os.path.exists(file_path + '//bipower_var_lag_'+str(lag)):
+        os.makedirs(file_path + '//bipower_var_lag_'+str(lag))
+    os.chdir(file_path + '//bipower_var_lag_'+str(lag))
+    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+
+###################################################################################################
+
