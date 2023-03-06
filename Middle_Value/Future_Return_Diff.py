@@ -23,9 +23,10 @@ def future_return_diff(pair, period, start=path_global.begin_date(), end = path_
 
     Close_Price = pd.merge(data_1, data_2, how='left', on='second_timestamp', \
                            suffixes=('_'+pair[0], '_'+pair[1]))
+    Close_Price = Close_Price.reset_index()
     ### Calculate return according to the specified period
-    Close_Price['middle_price_' + pair[0]] = Close_Price['middle_price_' + pair[0]].shift(-period) / Close_Price['middle_price_' + pair[0]]
-    Close_Price['middle_price_' + pair[1]] = Close_Price['middle_price_' + pair[1]].shift(-period) / Close_Price['middle_price_' + pair[1]]
-    Close_Price['diff'] = Close_Price['middle_price_' + pair[0]] - Close_Price['middle_price_' + pair[1]]
+    Close_Price['ret_' + pair[0]] = (Close_Price['middle_price_' + pair[0]].shift(-period + 1) / Close_Price['middle_price_' + pair[0]].shift(1)) -1
+    Close_Price['ret_' + pair[1]] = (Close_Price['middle_price_' + pair[1]].shift(-period + 1) / Close_Price['middle_price_' + pair[1]].shift(1)) -1
+    Close_Price['diff'] = Close_Price['ret_' + pair[0]] - Close_Price['ret_' + pair[1]]
     os.chdir(path_global.path_middle() + "//" + "Future_Return_Diff")
-    Close_Price[['second_timestamp','diff']].to_csv(pair[0 ] +" and  " +pair[1 ]+ " " + str(period) + " ret diff.csv")
+    Close_Price[['second_timestamp','diff']].to_csv(pair[0] +" and  " +pair[1]+ " " + str(period) + " ret diff.csv")

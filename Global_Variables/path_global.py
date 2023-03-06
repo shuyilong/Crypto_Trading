@@ -23,5 +23,3 @@ def begin_time():
 
 def end_time():
     return "2023-02-21 00:00:00"
-
-

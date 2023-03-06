@@ -8,7 +8,6 @@ import multiprocessing as mp
 from Multi_Processing import Spot_Snapshot_Single_best_bid_diff, Spot_Snapshot_Single_best_ask_diff, \
     Spot_Snapshot_Single_ask_n_depth, Spot_Snapshot_Single_bid_n_depth
 from tqdm import tqdm
-import math
 
 def best_bid_diff(symbol, period, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
     ###############################################################################
@@ -120,10 +119,10 @@ def bid_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//bid_'+str(n)+'_depth_'+data_type):
-        os.makedirs(file_path + '//bid_'+str(n)+'_depth_'+data_type)
-    os.chdir(file_path + '//bid_'+str(n)+'_depth_'+data_type)
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//bid_n_depth'):
+        os.makedirs(file_path + '//bid_n_depth')
+    os.chdir(file_path + '//bid_n_depth')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
 
 ###################################################################################################
 def ask_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
@@ -160,10 +159,10 @@ def ask_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//ask_'+str(n)+'_depth_'+data_type):
-        os.makedirs(file_path + '//ask_'+str(n)+'_depth_'+data_type)
-    os.chdir(file_path + '//ask_'+str(n)+'_depth_'+data_type)
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//ask_n_depth'):
+        os.makedirs(file_path + '//ask_n_depth')
+    os.chdir(file_path + '//ask_n_depth')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
 
 ###################################################################################################
 def window_return(symbol, period, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
@@ -196,14 +195,14 @@ def window_return(symbol, period, data_type, begin_date=path_global.begin_date()
     file = file[['second_timestamp', 'feature']].iloc[mask]
     file.index = range(len(file))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//window_return_'+data_type):
-        os.makedirs(file_path + '//window_return_'+data_type)
-    os.chdir(file_path + '//window_return_'+data_type)
-    file.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//window_return'):
+        os.makedirs(file_path + '//window_return')
+    os.chdir(file_path + '//window_return')
+    file.to_csv(f"{symbol}_{period}_{data_type}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_spread_return
-def spread_return(symbol, period, data_type, n, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def spread_return(symbol, period, n, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
     ###############################################################################
     ### This function is for calculating the statistic of spread return;
     ### INPUT : 1) symbol, e.g: "BTC"
@@ -237,14 +236,14 @@ def spread_return(symbol, period, data_type, n, begin_date=path_global.begin_dat
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//spread_return_'+data_type):
-        os.makedirs(file_path + '//spread_return_'+data_type)
-    os.chdir(file_path + '//spread_return_'+data_type)
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//spread_return'):
+        os.makedirs(file_path + '//spread_return')
+    os.chdir(file_path + '//spread_return')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_snapshot_derivative
-def snapshot_derivative(symbol, period, data_type, target_data, n, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def snapshot_derivative(symbol, period, n, data_type, target_data, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
     ###############################################################################
     ### This function is for calculating the statistic of spread return;
     ### INPUT : 1) symbol, e.g: "BTC"
@@ -281,10 +280,10 @@ def snapshot_derivative(symbol, period, data_type, target_data, n, begin_date=pa
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//snapshot_derivative//' + target_data + '_' + data_type):
-        os.makedirs(file_path + '//snapshot_derivative//' + target_data + '_' + data_type)
-    os.chdir(file_path + '//snapshot_derivative//' + target_data + '_' + data_type)
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//snapshot_derivative'):
+        os.makedirs(file_path + '//snapshot_derivative')
+    os.chdir(file_path + '//snapshot_derivative')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}_{target_data}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_semi_std
@@ -322,10 +321,10 @@ def semi_std(symbol, period, direction, begin_date=path_global.begin_date(), end
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//semi_std_'+direction):
-        os.makedirs(file_path + '//semi_std_'+direction)
-    os.chdir(file_path + '//semi_std_'+direction)
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//semi_std'):
+        os.makedirs(file_path + '//semi_std')
+    os.chdir(file_path + '//semi_std')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_bipower_var
@@ -363,10 +362,10 @@ def bipower_var(symbol, period, lag, begin_date=path_global.begin_date(), end_da
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//bipower_var_lag_'+str(lag)):
-        os.makedirs(file_path + '//bipower_var_lag_'+str(lag))
-    os.chdir(file_path + '//bipower_var_lag_'+str(lag))
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//bipower_var'):
+        os.makedirs(file_path + '//bipower_var')
+    os.chdir(file_path + '//bipower_var')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{lag}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_realized_quarticity
@@ -406,7 +405,7 @@ def realized_quarticity(symbol, period, begin_date=path_global.begin_date(), end
     if not os.path.exists(file_path + '//realized_quarticity'):
         os.makedirs(file_path + '//realized_quarticity')
     os.chdir(file_path + '//realized_quarticity')
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_snapshot_vol_imbalance
@@ -444,7 +443,7 @@ def snapshot_vol_imbalance(symbol, period, n, data_type, begin_date=path_global.
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//snapshot_vol_imbalabce//'+data_type):
-        os.makedirs(file_path + '//snapshot_vol_imbalabce//'+data_type)
-    os.chdir(file_path + '//snapshot_vol_imbalabce//'+data_type)
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    if not os.path.exists(file_path + '//snapshot_vol_imbalance'):
+        os.makedirs(file_path + '//snapshot_vol_imbalance')
+    os.chdir(file_path + '//snapshot_vol_imbalance')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
