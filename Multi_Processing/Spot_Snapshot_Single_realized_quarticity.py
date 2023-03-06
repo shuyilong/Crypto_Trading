@@ -37,9 +37,8 @@ def process_data(date, symbol, period, lag):
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
 
-    file['abs_mid_ret'] = abs(file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000
-    file['ret_product'] = file['abs_mid_ret'].shift(lag) * file['abs_mid_ret']
-    file['feature'] = np.pi / 2 * file['ret_product'].rolling(window=period, min_periods=2).sum().shift(1)
+    file['mid_ret_quar'] = ((file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000) ** 4
+    file['feature'] = period / 3 * file['mid_ret_quar'].rolling(window=period, min_periods=2).sum().shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')
