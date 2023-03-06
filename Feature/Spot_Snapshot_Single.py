@@ -68,7 +68,7 @@ def best_ask_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, args=(date, symbol, period)) \
+        results = [pool.apply_async(Spot_Snapshot_Single_best_ask_diff.process_data, args=(date, symbol, period)) \
                    for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])

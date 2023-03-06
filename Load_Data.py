@@ -3,6 +3,9 @@ import pandas as pd
 import re
 import Middle_Value as MV
 from Global_Variables import path_global
+import Feature
+import multiprocessing as mp
+import tqdm
 ###############################################################################
 ###############################################################################
 
@@ -64,20 +67,31 @@ def Load_Future_Return_Diff_Data(pair, period):
         return pd.read_csv('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv")
 
 ###################################################################################################
-import Feature
+from Multi_Processing import Load_Data_Use
 def Load_Feature_Data(function_list, arg_list):
+    ###############################################################################
+    ### This function is for loading feature data;
+    ### INPUT : 1) function_list, e.g ['best_bid_diff','best_ask_diff']
+    ###         2) arg_list, [("BTC", 300), ("BTC", 300)]
+    ### OUTPUT : Single file data in DataFrame format
+    ###############################################################################
     Path = os.path.join(path_global.path_middle(), "Features")
+    cpu_num = 32
     File_List = []
+    for i in range(len(function_list)) // cpu_num + (len(function_list % cpu_num > 0)):
+        function_range = function_list[i*cpu_num : (1+i) * cpu_num]
+        arg_range = arg_list[i*cpu_num : (1+i) * cpu_num]
+        pool = mp.Pool(processes= cpu_num)
+        results = [pool.apply_async(Load_Data_Use.load_feature_data, args=(function, args,)) \
+                   for function, args in zip(function_range, arg_range)]
+        for result in tqdm(results):
+            File_List.append(result.get())
+        pool.close()
+        pool.join()
 
-    for function, args in zip(function_list, arg_list):
-        args_chain = '_'.join(str(arg) for arg in args)
-        file_path = os.path.join(Path, f"{args_chain}.csv")
-        if os.path.exists(file_path):
-            file_df = pd.read_csv(file_path)
-        else:
-            File_List.append(getattr(Feature, function)(*args))
-
-    Feature_Data = pd.concat(File_List).sort_values(by="second_timestamp").reset_index()
+    Feature_Data = File_List[0]
+    for i in range(1,len(File_List)):
+        Feature_Data = pd.merge(Feature_Data, File_List[i], how='left', on='second_timestamp')
     return Feature_Data
 
 
