@@ -3,7 +3,7 @@ import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 
-def future_return_diff(pair, period, start="2022-10-02 00:00:00", end = "2023-02-21 00:00:00"):
+def future_return_diff(pair, period, start=path_global.begin_date(), end = path_global.end_date()):
     ###############################################################################
     ### This function is for calculating ret difference between 2 currency;
     ### And you should choose the calculation period of return as freq;
@@ -13,26 +13,19 @@ def future_return_diff(pair, period, start="2022-10-02 00:00:00", end = "2023-02
     ###         3) start, Start time of statistics
     ###         4) end, End time of statistics
     ###############################################################################
-    os.chdir(path_global.path_middle() + "//" + "Trade_Second_Data")
-    data_1 = pd.read_csv(pair[0 ] +"_Second_Data.csv")[['time', 'price']]
-    data_2 = pd.read_csv(pair[1 ] +"_Second_Data.csv")[['time', 'price']]
+    os.chdir(path_global.path_middle() + "//" + "Middle_Second_Data")
+    data_1 = pd.read_csv(pair[0 ] +"_Second_Data.csv")[['second_timestamp', 'middle_price']]
+    data_2 = pd.read_csv(pair[1 ] +"_Second_Data.csv")[['second_timestamp', 'middle_price']]
+    data_1['second_timestamp'] = pd.to_datetime(data_1['second_timestamp'], unit='s')
+    data_1 = data_1.set_index('second_timestamp')
+    data_2['second_timestamp'] = pd.to_datetime(data_2['second_timestamp'], unit='s')
+    data_2 = data_2.set_index('second_timestamp')
 
-    time_range = DC.time_interval("2022-10-01 00:00:00", \
-                                  "2023-02-20 23:59:59", 1)
-    Close_Price = pd.DataFrame(time_range ,columns = ['time'])
-    Close_Price = pd.merge(Close_Price, data_1[['time' ,'price']], how='left', on='time')
-    Close_Price = pd.merge(Close_Price, data_2[['time' ,'price']], how='left', on='time')
-    column_name = ['time']
-    column_name.extend(pair)
-    Close_Price.columns = column_name
-    Close_Price = Close_Price.fillna(method='ffill')
-    Close_Price = Close_Price.fillna(method='bfill')
-    Close_Price[pair[0]], Close_Price[pair[1]] = Close_Price[pair[0]].shift(1), Close_Price[pair[1]].shift(1)
-    ### Calculate return according to the specified frequency
-    Close_Price[pair[0]] = Close_Price[pair[0]].shift(-period) / Close_Price[pair[0]]
-    Close_Price[pair[1]] = Close_Price[pair[1]].shift(-period) / Close_Price[pair[1]]
-    Close_Price['diff'] = Close_Price[pair[0]] - Close_Price[pair[1]]
-    Close_Price = Close_Price[(Close_Price['time'] >= start) & \
-                              (Close_Price['time'] < end)][['time', 'diff']]
+    Close_Price = pd.merge(data_1, data_2, how='left', on='second_timestamp', \
+                           suffixes=('_'+pair[0], '_'+pair[1]))
+    ### Calculate return according to the specified period
+    Close_Price['middle_price_' + pair[0]] = Close_Price['middle_price_' + pair[0]].shift(-period) / Close_Price['middle_price_' + pair[0]]
+    Close_Price['middle_price_' + pair[1]] = Close_Price['middle_price_' + pair[1]].shift(-period) / Close_Price['middle_price_' + pair[1]]
+    Close_Price['diff'] = Close_Price['middle_price_' + pair[0]] - Close_Price['middle_price_' + pair[1]]
     os.chdir(path_global.path_middle() + "//" + "Future_Return_Diff")
-    Close_Price.to_csv(pair[0 ] +" and  " +pair[1 ]+ " " + str(period) + " ret diff.csv")
+    Close_Price[['second_timestamp','diff']].to_csv(pair[0 ] +" and  " +pair[1 ]+ " " + str(period) + " ret diff.csv")

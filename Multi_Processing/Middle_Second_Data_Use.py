@@ -27,3 +27,19 @@ def process_data(currency, date, before, after):
     all_seconds = pd.date_range(start=data.index.min(), end=data.index.max(), freq='1s')
     data = data.reindex(all_seconds).fillna(method="ffill")
     return data
+
+@lru_cache()
+def clean_data(currency):
+    os.chdir(path_global.path_middle() + '//Middle_Second_Data')
+    data = pd.read_csv(currency)[['second_timestamp', 'middle_price']]
+
+    all_seconds = pd.date_range(start=path_global.begin_time(), end=path_global.end_time(), freq='1s')
+    data['second_timestamp'] = pd.to_datetime(data['second_timestamp'], unit='s')
+    data = data.set_index('second_timestamp')
+    data = data.reindex(all_seconds)
+    data = data.fillna(method = 'ffill')
+    data = data.fillna(method = 'bfill')
+    data['second_timestamp'] = pd.DatetimeIndex(data.index).astype(int) // 10 ** 9
+    data.to_csv(currency)
+    return "success !"
+

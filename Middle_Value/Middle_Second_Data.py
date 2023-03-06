@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 def middle_second_data():
     ###############################################################################
-    ### This function is for calculating trade second data;
+    ### This function is for calculating middle second data;
     ###############################################################################
     Path = path_global.path_spot() + "//binance//book_snapshot_25"
     currency_list = os.listdir(Path)
@@ -43,3 +43,14 @@ def middle_second_data():
         os.chdir(path_global.path_middle() + '//Middle_Second_Data')
         Final_Result_List.to_csv(currency + "_Second_Data.csv")
 
+    ### Align the timestamps of all currencies
+    currency_list = os.listdir()
+    cpu_num = 32
+    for i in range(len(currency_list) // cpu_num + (len(currency_list) % cpu_num > 0)):
+        pool = mp.Pool(processes=cpu_num)
+        results = [pool.apply_async(Middle_Second_Data_Use.clean_data, args=(cur,)) \
+                      for cur in currency_list]
+        for result in tqdm(results):
+             print(result.get())
+        pool.close()
+        pool.join()
