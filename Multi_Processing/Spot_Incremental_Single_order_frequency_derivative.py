@@ -1,17 +1,13 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
-from tqdm import tqdm
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
-Path = path_global.path_spot() + "//binance//trades"
-
+Path = path_global.path_spot() + "//binance//incremental_book_L2"
 
 @lru_cache()
 def process_data(date, symbol, period, direction):
@@ -36,11 +32,11 @@ def process_data(date, symbol, period, direction):
         file = file[['amount']].groupby(pd.Grouper(freq='1s')).count()
     else:
         file = file[file['side'] == direction][['amount']].groupby(pd.Grouper(freq='1s')).count()
-
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(0)
 
-    file['feature'] = file[['amount']].rolling(window=period, min_periods=1).sum().shift(1)
+    file['amount'] = file[['amount']].rolling(window=period, min_periods=1).sum()
+    file['feature'] = (file['amount'] / file['amount'].shift(period)).shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

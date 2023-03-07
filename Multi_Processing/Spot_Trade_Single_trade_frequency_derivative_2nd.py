@@ -12,7 +12,6 @@ begin_date = path_global.begin_date()
 end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//trades"
 
-
 @lru_cache()
 def process_data(date, symbol, period, direction):
     os.chdir(Path + "//" + symbol)
@@ -35,12 +34,13 @@ def process_data(date, symbol, period, direction):
     if direction == "both":
         file = file[['amount']].groupby(pd.Grouper(freq='1s')).count()
     else:
-        file = file[file['side'] == direction][['amount']].groupby(pd.Grouper(freq='1s')).count()
-
+        file = file[file['side'] == direction][['amount']].groupby(pd.Grouper(freq='1s')).sum()
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(0)
 
-    file['feature'] = file[['amount']].rolling(window=period, min_periods=1).sum().shift(1)
+    file['amount'] = file[['amount']].rolling(window=period, min_periods=1).sum()
+    file['feature'] = ((file['amount'] - 2 * file['amount'].shift(period) + \
+                         file['amount'].shift(2*period)) / file['amount']).shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

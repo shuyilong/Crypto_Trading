@@ -1,16 +1,13 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
-from tqdm import tqdm
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
-Path = path_global.path_spot() + "//binance//trades"
+Path = path_global.path_spot() + "//binance//incremental_book_L2"
 
 
 @lru_cache()

@@ -10,11 +10,11 @@ from tqdm import tqdm
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
-Path = path_global.path_spot() + "//binance//trades"
+Path = path_global.path_spot() + "//binance//incremental_book_L2"
 
 
 @lru_cache()
-def process_data(date, symbol, period, direction):
+def process_data(date, symbol, period, data_type):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
@@ -32,19 +32,19 @@ def process_data(date, symbol, period, direction):
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
 
-    if direction == "both":
-        file = file[['amount']].groupby(pd.Grouper(freq='1s')).count()
-    else:
-        file = file[file['side'] == direction][['amount']].groupby(pd.Grouper(freq='1s')).count()
-
+    ask_side = file[file['side'] == 'ask'][['amount']].groupby(pd.Grouper(freq='1s')).count()
+    bid_side = file[file['side'] == 'bid'][['amount']].groupby(pd.Grouper(freq='1s')).count()
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
-    file = file.reindex(all_seconds).fillna(0)
+    ask_side = ask_side.reindex(all_seconds).fillna(0)
+    bid_side = bid_side.reindex(all_seconds).fillna(0)
 
-    file['feature'] = file[['amount']].rolling(window=period, min_periods=1).sum().shift(1)
-    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
+    ask_side = ask_side[['amount']].rolling(window=period, min_periods=1).sum()
+    bid_side = bid_side[['amount']].rolling(window=period, min_periods=1).sum()
+    result = (ask_side / bid_side).shift(1).rename(columns={'amount': 'feature'})
+    result['second_timestamp'] = pd.DatetimeIndex(result.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')
     end_time = pd.Timestamp(date + ' 23:59:59')
-    mask = file.index.slice_indexer(start_time, end_time)
-    file = file[['second_timestamp','feature']].iloc[mask]
-    return file
+    mask = result.index.slice_indexer(start_time, end_time)
+    result = result[['second_timestamp','feature']].iloc[mask]
+    return result

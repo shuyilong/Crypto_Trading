@@ -7,8 +7,8 @@ import multiprocessing as mp
 from tqdm import tqdm
 
 
-from Multi_Processing import  Spot_Trade_Single_trade_volumn
-def trade_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_volumn
+def order_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### This function is for calculating total trade volumn for given currency;
 ### INPUT : 1) symbol, e.g: "BTC"
@@ -17,7 +17,7 @@ def trade_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(
 ###         4) begin_date, default in "2022-10-01"
 ###         5) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -29,7 +29,7 @@ def trade_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_volumn.process_data, args=(date, symbol, \
+        results = [pool.apply_async(Spot_Incremental_Single_order_volumn.process_data, args=(date, symbol, \
                         period, data_type, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -40,21 +40,21 @@ def trade_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_volumn'):
-        os.makedirs(file_path + '//trade_volumn')
-    os.chdir(file_path + '//trade_volumn')
+    if not os.path.exists(file_path + '//order_volumn'):
+        os.makedirs(file_path + '//order_volumn')
+    os.chdir(file_path + '//order_volumn')
     Final_Result_List.to_csv(f"{symbol}_{period}_{data_type}_{direction}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_volumn_imbalance
-def trade_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_volumn_imbalance
+def order_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
 ###         3) begin_date, default in "2022-10-01"
 ###         4) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -66,7 +66,7 @@ def trade_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date=
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_volumn_imbalance.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_volumn_imbalance.process_data,
                                     args=(date, symbol, period)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -77,21 +77,21 @@ def trade_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date=
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_volumn_imbalance'):
-        os.makedirs(file_path + '//trade_volumn_imbalance')
-    os.chdir(file_path + '//trade_volumn_imbalance')
+    if not os.path.exists(file_path + '//order_volumn_imbalance'):
+        os.makedirs(file_path + '//order_volumn_imbalance')
+    os.chdir(file_path + '//order_volumn_imbalance')
     Final_Result_List.to_csv(f"{symbol}_{period}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_frequency
-def trade_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_frequency
+def order_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
 ###         3) begin_date, default in "2022-10-01"
 ###         4) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -103,7 +103,7 @@ def trade_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_d
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_frequency.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_frequency.process_data,
                                     args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -114,21 +114,21 @@ def trade_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_d
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_frequency'):
-        os.makedirs(file_path + '//trade_frequency')
-    os.chdir(file_path + '//trade_frequency')
+    if not os.path.exists(file_path + '//order_frequency'):
+        os.makedirs(file_path + '//order_frequency')
+    os.chdir(file_path + '//order_frequency')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_frequency_imbalance
-def trade_frequency_imbalance(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_frequency_imbalance
+def order_frequency_imbalance(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
 ###         3) begin_date, default in "2022-10-01"
 ###         4) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -140,7 +140,7 @@ def trade_frequency_imbalance(symbol, period, begin_date=GV.begin_date(), end_da
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_frequency_imbalance.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_frequency_imbalance.process_data,
                                     args=(date, symbol, period)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -151,14 +151,14 @@ def trade_frequency_imbalance(symbol, period, begin_date=GV.begin_date(), end_da
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_frequency_imbalance'):
-        os.makedirs(file_path + '//trade_frequency_imbalance')
-    os.chdir(file_path + '//trade_frequency_imbalance')
+    if not os.path.exists(file_path + '//order_frequency_imbalance'):
+        os.makedirs(file_path + '//order_frequency_imbalance')
+    os.chdir(file_path + '//order_frequency_imbalance')
     Final_Result_List.to_csv(f"{symbol}_{period}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_volumn_derivative
-def trade_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_volumn_derivative
+def order_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
@@ -166,7 +166,7 @@ def trade_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(
 ###         4) begin_date, default in "2022-10-01"
 ###         5) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -178,7 +178,7 @@ def trade_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_volumn_derivative.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_volumn_derivative.process_data,
                                     args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -189,14 +189,14 @@ def trade_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_volumn_derivative'):
-        os.makedirs(file_path + '//trade_volumn_derivative')
-    os.chdir(file_path + '//trade_volumn_derivative')
+    if not os.path.exists(file_path + '//order_volumn_derivative'):
+        os.makedirs(file_path + '//order_volumn_derivative')
+    os.chdir(file_path + '//order_volumn_derivative')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_frequency_derivative
-def trade_frequency_derivative(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_frequency_derivative
+def order_frequency_derivative(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
@@ -204,7 +204,7 @@ def trade_frequency_derivative(symbol, period, direction, begin_date=GV.begin_da
 ###         4) begin_date, default in "2022-10-01"
 ###         5) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -216,7 +216,7 @@ def trade_frequency_derivative(symbol, period, direction, begin_date=GV.begin_da
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_frequency_derivative.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_frequency_derivative.process_data,
                                     args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -227,14 +227,14 @@ def trade_frequency_derivative(symbol, period, direction, begin_date=GV.begin_da
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_frequency_derivative'):
-        os.makedirs(file_path + '//trade_frequency_derivative')
-    os.chdir(file_path + '//trade_frequency_derivative')
+    if not os.path.exists(file_path + '//order_frequency_derivative'):
+        os.makedirs(file_path + '//order_frequency_derivative')
+    os.chdir(file_path + '//order_frequency_derivative')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_volumn_derivative_2nd
-def trade_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_volumn_derivative_2nd
+def order_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
@@ -242,7 +242,7 @@ def trade_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_d
 ###         4) begin_date, default in "2022-10-01"
 ###         5) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -254,7 +254,7 @@ def trade_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_d
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_volumn_derivative_2nd.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_volumn_derivative_2nd.process_data,
                                     args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -265,14 +265,14 @@ def trade_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_d
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_volumn_derivative_2nd'):
-        os.makedirs(file_path + '//trade_volumn_derivative_2nd')
-    os.chdir(file_path + '//trade_volumn_derivative_2nd')
+    if not os.path.exists(file_path + '//order_volumn_derivative_2nd'):
+        os.makedirs(file_path + '//order_volumn_derivative_2nd')
+    os.chdir(file_path + '//order_volumn_derivative_2nd')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
 
 #################################################################################################
-from Multi_Processing import Spot_Trade_Single_trade_frequency_derivative_2nd
-def trade_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+from Multi_Processing import Spot_Incremental_Single_order_frequency_derivative_2nd
+def order_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
@@ -280,7 +280,7 @@ def trade_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begi
 ###         4) begin_date, default in "2022-10-01"
 ###         5) end, default in "2022-10-01"
 ###############################################################################
-    Path = GV.path_spot() + "//binance//trades"
+    Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -292,7 +292,7 @@ def trade_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begi
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Trade_Single_trade_frequency_derivative_2nd.process_data,
+        results = [pool.apply_async(Spot_Incremental_Single_order_frequency_derivative_2nd.process_data,
                                     args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -303,7 +303,7 @@ def trade_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begi
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
     file_path = GV.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//trade_frequency_derivative_2nd'):
-        os.makedirs(file_path + '//trade_frequency_derivative_2nd')
-    os.chdir(file_path + '//trade_frequency_derivative_2nd')
+    if not os.path.exists(file_path + '//order_frequency_derivative_2nd'):
+        os.makedirs(file_path + '//order_frequency_derivative_2nd')
+    os.chdir(file_path + '//order_frequency_derivative_2nd')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
