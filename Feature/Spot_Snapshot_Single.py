@@ -3,7 +3,6 @@ from Global_Variables import path_global
 import Data_Clean as DC
 import re
 import pandas as pd
-import time
 import multiprocessing as mp
 from Multi_Processing import Spot_Snapshot_Single_best_bid_diff, Spot_Snapshot_Single_best_ask_diff, \
     Spot_Snapshot_Single_ask_n_depth, Spot_Snapshot_Single_bid_n_depth
@@ -21,7 +20,6 @@ def best_bid_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
     os.chdir(Path + "//"+symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -59,7 +57,6 @@ def best_ask_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
     os.chdir(Path + "//"+symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
