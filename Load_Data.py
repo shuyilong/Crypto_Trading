@@ -2,14 +2,12 @@ import os
 import pandas as pd
 import re
 import Middle_Value as MV
-from Global_Variables import path_global
+import Global_Variables as GV
 import Feature
-import multiprocessing as mp
-import tqdm
 ###############################################################################
 ###############################################################################
 
-def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path = path_global.path_original()):
+def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path = GV.path_original()):
 ###############################################################################
 ### This function is for loading single data file;
 ### INPUT : 1) product, choose from "Future"/"Option"/"Spot"/"Swap"
@@ -59,7 +57,7 @@ def Load_Future_Return_Diff_Data(pair, period):
     ###         2) period, int in second
     ### OUTPUT : Single file data in DataFrame format
     ###############################################################################
-    os.chdir(path_global.path_middle() + "//" + "Future_Return_Diff")
+    os.chdir(GV.path_middle() + "//" + "Future_Return_Diff")
     if os.path.exists('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv"):
         return pd.read_csv('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv")
     else:
@@ -74,7 +72,7 @@ def Load_Feature_Data(function_list, arg_list):
     ###         2) arg_list, [("BTC", 300), ("BTC", 300)]
     ### OUTPUT : Single file data in DataFrame format
     ###############################################################################
-    Path = os.path.join(path_global.path_middle(), "Features")
+    Path = os.path.join(GV.path_middle(), "Features")
     File_List = []
     for function, args in zip(function_list, arg_list):
         args_chain = '_'.join(str(arg) for arg in args)

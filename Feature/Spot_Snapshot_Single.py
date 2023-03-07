@@ -1,5 +1,5 @@
 import os
-from Global_Variables import path_global
+import Global_Variables as GV
 import Data_Clean as DC
 import re
 import pandas as pd
@@ -7,7 +7,7 @@ import multiprocessing as mp
 from tqdm import tqdm
 
 from Multi_Processing import Spot_Snapshot_Single_best_diff
-def best_diff(symbol, period, direction, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def best_diff(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
@@ -15,7 +15,7 @@ def best_diff(symbol, period, direction, begin_date=path_global.begin_date(), en
     ###         3) begin_date, default in "2022-10-01"
     ###         4) end, default in "2022-10-01"
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//"+symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -27,7 +27,7 @@ def best_diff(symbol, period, direction, begin_date=path_global.begin_date(), en
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i*cpu_num : (1+i) * cpu_num]
         pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(Spot_Snapshot_Single_best_bid_diff.process_data, \
+        results = [pool.apply_async(Spot_Snapshot_Single_best_diff.process_data, \
                         args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
@@ -37,12 +37,13 @@ def best_diff(symbol, period, direction, begin_date=path_global.begin_date(), en
 
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
-    file_path = path_global.path_middle() + "//Features"
+    file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//best_diff'):
         os.makedirs(file_path + '//best_diff')
     os.chdir(file_path + '//best_diff')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")
 
+'''
 ###################################################################################################
 def bid_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
     ###############################################################################
@@ -406,3 +407,4 @@ def snapshot_vol_imbalance(symbol, period, n, data_type, begin_date=path_global.
         os.makedirs(file_path + '//snapshot_vol_imbalance')
     os.chdir(file_path + '//snapshot_vol_imbalance')
     Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
+'''
