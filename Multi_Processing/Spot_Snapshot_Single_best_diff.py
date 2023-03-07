@@ -1,12 +1,9 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
-from tqdm import tqdm
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
@@ -14,7 +11,7 @@ Path = path_global.path_spot() + "//binance//book_snapshot_25"
 
 
 @lru_cache()
-def process_data(date, symbol, period):
+def process_data(date, symbol, period, direction):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
@@ -31,13 +28,20 @@ def process_data(date, symbol, period):
     file['second_timestamp'] = file['timestamp'] // 1000000
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
-    file = file[['asks[0].price', 'bids[0].price']].groupby(pd.Grouper(freq='1s')).mean()
+
+    if direction == "ask":
+        file = file[['asks[0].price']].groupby(pd.Grouper(freq='1s')).mean().rename(columns={'asks[0].price': 'best'})
+    elif direction == "bid":
+        file = file[['bids[0].price']].groupby(pd.Grouper(freq='1s')).mean().rename(columns={'bids[0].price': 'best'})
+    else:
+        raise ValueError("direction should be ask or bid")
+
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
 
-    rolling = file['bids[0].price'].rolling(window=period, min_periods=1)
-    file['diff'] = rolling.apply(lambda x: x[-1] - x[0], raw=True).shift(1)
-    file['feature'] = file['diff'] / file['bids[0].price'].shift(period)
+    rolling = file['best'].rolling(window=period, min_periods=2)
+    file['diff'] = rolling.apply(lambda x: x[-1] - x[0], raw=True)
+    file['feature'] = (10000*file['diff'] / file['best']).shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10 ** 9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

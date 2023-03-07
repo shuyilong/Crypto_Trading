@@ -1,8 +1,13 @@
 import Feature
+from itertools import product
+
+symbols = ["BTC", "ETH"]
+time_range = [10, 30, 60, 300, 600]
+order_dir = ["ask", "bid"]
+
 
 def feature_function_map():
-    Map = {'best_bid_diff' : Feature.best_bid_diff,\
-           'best_ask_diff' : Feature.best_ask_diff,\
+    Map = {'best_diff' : list(product(symbols, time_range, order_dir)),\
            'bid_n_depth' : Feature.bid_n_depth,\
            'ask_n_depth' : Feature.ask_n_depth,\
            'window_return': Feature.window_return,\
