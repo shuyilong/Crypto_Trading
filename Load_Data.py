@@ -67,7 +67,6 @@ def Load_Future_Return_Diff_Data(pair, period):
         return pd.read_csv('./'+pair[0]+" and "+pair[1]+ " " + str(period) + " ret diff.csv")
 
 ###################################################################################################
-from Multi_Processing import Load_Data_Use
 def Load_Feature_Data(function_list, arg_list):
     ###############################################################################
     ### This function is for loading feature data;
@@ -76,18 +75,19 @@ def Load_Feature_Data(function_list, arg_list):
     ### OUTPUT : Single file data in DataFrame format
     ###############################################################################
     Path = os.path.join(path_global.path_middle(), "Features")
-    cpu_num = 32
     File_List = []
-    for i in range(len(function_list)) // cpu_num + (len(function_list % cpu_num > 0)):
-        function_range = function_list[i*cpu_num : (1+i) * cpu_num]
-        arg_range = arg_list[i*cpu_num : (1+i) * cpu_num]
-        pool = mp.Pool(processes= cpu_num)
-        results = [pool.apply_async(Load_Data_Use.load_feature_data, args=(function, args,)) \
-                   for function, args in zip(function_range, arg_range)]
-        for result in tqdm(results):
-            File_List.append(result.get())
-        pool.close()
-        pool.join()
+    for function, args in zip(function_list, arg_list):
+        args_chain = '_'.join(str(arg) for arg in args)
+        file_path = os.path.join(Path, function, f"{args_chain}.csv")
+        if os.path.exists(file_path):
+            file = pd.read_csv(file_path)[['second_timestamp', 'feature']]
+            file.columns = ['second_timestamp', function + "_" + args_chain]
+            File_List.append(file)
+        else:
+            getattr(Feature, function)(*args)
+            file = pd.read_csv(file_path)[['second_timestamp', 'feature']]
+            file.columns = ['second_timestamp', function + "_" + args_chain]
+            File_List.append(file)
 
     Feature_Data = File_List[0]
     for i in range(1,len(File_List)):

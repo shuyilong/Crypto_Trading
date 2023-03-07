@@ -44,7 +44,7 @@ def best_bid_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
     if not os.path.exists(file_path + '//best_bid_diff'):
         os.makedirs(file_path + '//best_bid_diff')
     os.chdir(file_path + '//best_bid_diff')
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
 
 ###################################################################################################
 def best_ask_diff(symbol, period, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
@@ -82,7 +82,7 @@ def best_ask_diff(symbol, period, begin_date=path_global.begin_date(), end_date=
     if not os.path.exists(file_path + '//best_ask_diff'):
         os.makedirs(file_path + '//best_ask_diff')
     os.chdir(file_path + '//best_ask_diff')
-    Final_Result_List.to_csv(symbol + "_" + str(period) + ".csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
 
 ###################################################################################################
 def bid_n_depth(symbol, period, n, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
