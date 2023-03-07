@@ -61,7 +61,7 @@ def Load_Future_Return_Diff_Data(pair, period, start=GV.begin_date(), end=GV.end
     if os.path.exists(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv"):
         return pd.read_csv(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv")
     else:
-        MV.future_return_diff(pair, period)
+        MV.future_return_diff(pair, period, start, end)
         os.chdir(GV.path_middle() + "//" + "Future_Return_Diff")
         return pd.read_csv(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv")
 
