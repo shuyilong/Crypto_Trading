@@ -233,23 +233,21 @@ def middle_derivative_2nd(symbol, period, begin_date=GV.begin_date(), end_date= 
         os.makedirs(file_path + '//middle_derivative_2nd')
     os.chdir(file_path + '//middle_derivative_2nd')
     Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
-'''
+
 ###################################################################################################
-from Multi_Processing import Spot_Snapshot_Single_semi_std
-def semi_std(symbol, period, direction, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+from Multi_Processing import Spot_Snapshot_Single_middle_std
+def middle_std(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating the semi-std of middle price;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
-    ###         3) direction, choose from "positive","negative"
+    ###         3) direction, choose from "positive","negative","total"
     ###         4) begin_date, default in "2022-10-01"
     ###         5) end, default in "2022-10-01"
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -259,8 +257,8 @@ def semi_std(symbol, period, direction, begin_date=path_global.begin_date(), end
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
         results = [
-            pool.apply_async(Spot_Snapshot_Single_semi_std.process_data, args=(date, symbol, period, direction)) \
-            for date in date_range]
+            pool.apply_async(Spot_Snapshot_Single_middle_std.process_data, \
+                   args=(date, symbol, period, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -269,12 +267,12 @@ def semi_std(symbol, period, direction, begin_date=path_global.begin_date(), end
 
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
-    file_path = path_global.path_middle() + "//Features"
-    if not os.path.exists(file_path + '//semi_std'):
-        os.makedirs(file_path + '//semi_std')
-    os.chdir(file_path + '//semi_std')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
-
+    file_path = GV.path_middle() + "//Features"
+    if not os.path.exists(file_path + '//middle_std'):
+        os.makedirs(file_path + '//middle_std')
+    os.chdir(file_path + '//middle_std')
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")
+'''
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_bipower_var
 def bipower_var(symbol, period, lag, begin_date=path_global.begin_date(), end_date= path_global.end_date()):

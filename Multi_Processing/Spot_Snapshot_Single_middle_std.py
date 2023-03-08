@@ -1,24 +1,19 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
-from tqdm import tqdm
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//book_snapshot_25"
-
 
 @lru_cache()
 def process_data(date, symbol, period, direction):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
-    date_results = []
 
     if date == begin_date:
         file_read = [date, DC.Date_Addtion(date, "day", 1)]
@@ -45,6 +40,10 @@ def process_data(date, symbol, period, direction):
     elif direction == "negative":
         file['feature'] = file['mid_ret'].rolling(window=period, min_periods=2).apply(
             lambda x: x[x < 0].std(ddof=0)).shift(1)
+    elif direction == "total":
+        file['feature'] = file['mid_ret'].rolling(window=period, min_periods=2).std().shift(1)
+    else:
+        raise ValueError("direction should be positive, negative or total")
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

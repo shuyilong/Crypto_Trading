@@ -3,6 +3,7 @@ from itertools import product
 symbols = ["BTC", "ETH"]
 period = [15, 60, 300, 600]
 order_direction = ["ask", "bid"]
+var_direction = ["positive","negative","total"]
 start = ["2022-10-02"]
 end = ["2022-10-31"]
 n = [0, 4, 14]
@@ -15,6 +16,7 @@ def feature_function_map():
            'middle_mom' : list(product(symbols, period, start, end)),\
            'spread_return' : list(product(symbols, period, n, data_type2, start, end)),\
            'middle_derivative' : list(product(symbols, period, start, end)),\
-
+           'middle_derivative_2nd' : list(product(symbols, period, start, end)),\
+           'middle_std' : list(product(symbols, period, var_direction, end)),\
            }
     return Map
