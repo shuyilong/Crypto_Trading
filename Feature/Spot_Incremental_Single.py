@@ -75,10 +75,10 @@ def order_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date=
         os.makedirs(file_path + '//order_volumn_imbalance')
     os.chdir(file_path + '//order_volumn_imbalance')
     Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
-'''
+
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_frequency
-def order_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
+def order_frequency(symbol, period, data_type, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
@@ -87,8 +87,6 @@ def order_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_d
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -98,7 +96,7 @@ def order_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_d
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
         results = [pool.apply_async(Spot_Incremental_Single_order_frequency.process_data,
-                                    args=(date, symbol, period, direction)) for date in date_range]
+                                    args=(date, symbol, period, data_type, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -111,7 +109,7 @@ def order_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_d
     if not os.path.exists(file_path + '//order_frequency'):
         os.makedirs(file_path + '//order_frequency')
     os.chdir(file_path + '//order_frequency')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{data_type}_{direction}_{begin_date}_{end_date}.csv")
 
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_frequency_imbalance
@@ -124,8 +122,6 @@ def order_frequency_imbalance(symbol, period, begin_date=GV.begin_date(), end_da
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -148,7 +144,7 @@ def order_frequency_imbalance(symbol, period, begin_date=GV.begin_date(), end_da
     if not os.path.exists(file_path + '//order_frequency_imbalance'):
         os.makedirs(file_path + '//order_frequency_imbalance')
     os.chdir(file_path + '//order_frequency_imbalance')
-    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
 
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_volumn_derivative
@@ -162,8 +158,6 @@ def order_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -186,7 +180,7 @@ def order_volumn_derivative(symbol, period, direction, begin_date=GV.begin_date(
     if not os.path.exists(file_path + '//order_volumn_derivative'):
         os.makedirs(file_path + '//order_volumn_derivative')
     os.chdir(file_path + '//order_volumn_derivative')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")
 
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_frequency_derivative
@@ -200,8 +194,6 @@ def order_frequency_derivative(symbol, period, direction, begin_date=GV.begin_da
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -224,7 +216,7 @@ def order_frequency_derivative(symbol, period, direction, begin_date=GV.begin_da
     if not os.path.exists(file_path + '//order_frequency_derivative'):
         os.makedirs(file_path + '//order_frequency_derivative')
     os.chdir(file_path + '//order_frequency_derivative')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")
 
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_volumn_derivative_2nd
@@ -238,8 +230,6 @@ def order_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_d
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -262,7 +252,7 @@ def order_volumn_derivative_2nd(symbol, period, direction, begin_date=GV.begin_d
     if not os.path.exists(file_path + '//order_volumn_derivative_2nd'):
         os.makedirs(file_path + '//order_volumn_derivative_2nd')
     os.chdir(file_path + '//order_volumn_derivative_2nd')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")
 
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_frequency_derivative_2nd
@@ -276,8 +266,6 @@ def order_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begi
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -300,5 +288,4 @@ def order_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begi
     if not os.path.exists(file_path + '//order_frequency_derivative_2nd'):
         os.makedirs(file_path + '//order_frequency_derivative_2nd')
     os.chdir(file_path + '//order_frequency_derivative_2nd')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
-'''
+    Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")

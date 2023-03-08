@@ -9,13 +9,11 @@ begin_date = path_global.begin_date()
 end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//incremental_book_L2"
 
-
 @lru_cache()
-def process_data(date, symbol, period, direction):
+def process_data(date, symbol, period, data_type, direction):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
-    date_results = []
 
     if date == begin_date:
         file_read = [date, DC.Date_Addtion(date, "day", 1)]
@@ -37,7 +35,10 @@ def process_data(date, symbol, period, direction):
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(0)
 
-    file['feature'] = file[['amount']].rolling(window=period, min_periods=1).sum().shift(1)
+    rolling = file[['amount']].rolling(window=period, min_periods=1)
+    func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
+                 "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
+    file['feature'] = func_dict[data_type]().shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

@@ -9,7 +9,6 @@ begin_date = path_global.begin_date()
 end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//trades"
 
-
 @lru_cache()
 def process_data(date, symbol, period, data_type, direction):
     os.chdir(Path + "//" + symbol)

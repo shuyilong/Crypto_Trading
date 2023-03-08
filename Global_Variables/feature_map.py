@@ -46,6 +46,11 @@ def feature_function_map():
            'disparity' : list(product(symbols, period, start, end)),\
            'order_volumn' : list(product(symbols, period, data_type4, trade_direction, start, end)),\
            'order_volumn_imbalance' : list(product(symbols, period, start, end)),\
-
+           'order_frequency' : list(product(symbols, period, data_type4, trade_direction, start, end)),\
+           'order_frequency_imbalance' : list(product(symbols, period, start, end)),\
+           'order_volumn_derivative' : list(product(symbols, period, trade_direction, start, end)),\
+           'order_frequency_derivative' : list(product(symbols, period, trade_direction, start, end)),\
+           'order_volumn_derivative_2nd' : list(product(symbols, period, trade_direction, start, end)),\
+           'order_frequency_derivative_2nd' : list(product(symbols, period, trade_direction, start, end)),\
            }
     return Map
