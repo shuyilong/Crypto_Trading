@@ -9,7 +9,6 @@ from tqdm import tqdm
 from Multi_Processing import Technique_Single_diff_middle_ma
 def diff_middle_ma(symbol, long_period, short_period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating difference of ma for midlle_price of given currency;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) short_period, period of short ma calculation
     ###         3) long_period, period of long ma calculation
@@ -18,8 +17,6 @@ def diff_middle_ma(symbol, long_period, short_period, begin_date=GV.begin_date()
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//"+symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -28,8 +25,8 @@ def diff_middle_ma(symbol, long_period, short_period, begin_date=GV.begin_date()
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Technique_Single_diff_middle_ma.process_data, args=(date, symbol, long_period, short_period)) \
-                   for date in date_range]
+        results = [pool.apply_async(Technique_Single_diff_middle_ma.process_data, \
+                                    args=(date, symbol, long_period, short_period)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -42,13 +39,12 @@ def diff_middle_ma(symbol, long_period, short_period, begin_date=GV.begin_date()
     if not os.path.exists(file_path + '//diff_middle_ma'):
         os.makedirs(file_path + '//diff_middle_ma')
     os.chdir(file_path + '//diff_middle_ma')
-    Final_Result_List.to_csv(f"{symbol}_{long_period}_{short_period}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{long_period}_{short_period}_{begin_date}_{end_date}.csv")
 
 ################################################################################################
 from Multi_Processing import Technique_Single_diff_middle_ema
 def diff_middle_ema(symbol, long_period, short_period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating difference of ema for midlle_price of given currency;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) short_period, period of short ma calculation
     ###         3) long_period, period of long ma calculation
@@ -57,8 +53,6 @@ def diff_middle_ema(symbol, long_period, short_period, begin_date=GV.begin_date(
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -82,13 +76,12 @@ def diff_middle_ema(symbol, long_period, short_period, begin_date=GV.begin_date(
     if not os.path.exists(file_path + '//diff_middle_ema'):
         os.makedirs(file_path + '//diff_middle_ema')
     os.chdir(file_path + '//diff_middle_ema')
-    Final_Result_List.to_csv(f"{symbol}_{long_period}_{short_period}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{long_period}_{short_period}_{begin_date}_{end_date}.csv")
 
 ################################################################################################
 from Multi_Processing import Technique_Single_slow_sto
 def slow_sto(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating slow stocastic for midlle_price of given currency;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of calculation
     ###         3) begin_date, default in "2022-10-01"
@@ -96,8 +89,6 @@ def slow_sto(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -121,13 +112,12 @@ def slow_sto(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()
     if not os.path.exists(file_path + '//slow_sto'):
         os.makedirs(file_path + '//slow_sto')
     os.chdir(file_path + '//slow_sto')
-    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
 
 ################################################################################################
 from Multi_Processing import Technique_Single_rsi
 def rsi(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating rsi for midlle_price of given currency;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of calculation
     ###         3) begin_date, default in "2022-10-01"
@@ -135,8 +125,6 @@ def rsi(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -159,13 +147,12 @@ def rsi(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     if not os.path.exists(file_path + '//rsi'):
         os.makedirs(file_path + '//rsi')
     os.chdir(file_path + '//rsi')
-    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
 
 ################################################################################################
 from Multi_Processing import Technique_Single_disparity
 def disparity(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating disparity for midlle_price of given currency;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of calculation
     ###         3) begin_date, default in "2022-10-01"
@@ -173,8 +160,6 @@ def disparity(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date(
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -197,5 +182,4 @@ def disparity(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date(
     if not os.path.exists(file_path + '//disparity'):
         os.makedirs(file_path + '//disparity')
     os.chdir(file_path + '//disparity')
-    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
-
+    Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")

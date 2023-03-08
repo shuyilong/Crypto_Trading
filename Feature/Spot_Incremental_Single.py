@@ -1,7 +1,6 @@
 import os
 import Global_Variables as GV
 import Data_Clean as DC
-import re
 import pandas as pd
 import multiprocessing as mp
 from tqdm import tqdm
@@ -10,7 +9,6 @@ from tqdm import tqdm
 from Multi_Processing import Spot_Incremental_Single_order_volumn
 def order_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
 ###############################################################################
-### This function is for calculating total trade volumn for given currency;
 ### INPUT : 1) symbol, e.g: "BTC"
 ###         2) period, period of return calculation, in seconds
 ###         3) direction, choose from "buy", "sell", "both"
@@ -19,8 +17,6 @@ def order_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -29,8 +25,8 @@ def order_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(
         Final_Result = pd.DataFrame()
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
-        results = [pool.apply_async(Spot_Incremental_Single_order_volumn.process_data, args=(date, symbol, \
-                        period, data_type, direction)) for date in date_range]
+        results = [pool.apply_async(Spot_Incremental_Single_order_volumn.process_data, \
+                        args=(date, symbol, period, data_type, direction)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -43,7 +39,7 @@ def order_volumn(symbol, period, data_type, direction, begin_date=GV.begin_date(
     if not os.path.exists(file_path + '//order_volumn'):
         os.makedirs(file_path + '//order_volumn')
     os.chdir(file_path + '//order_volumn')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{data_type}_{direction}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{data_type}_{direction}_{begin_date}_{end_date}.csv")
 
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_volumn_imbalance
@@ -56,8 +52,6 @@ def order_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date=
 ###############################################################################
     Path = GV.path_spot() + "//binance//incremental_book_L2"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -80,8 +74,8 @@ def order_volumn_imbalance(symbol, period, begin_date=GV.begin_date(), end_date=
     if not os.path.exists(file_path + '//order_volumn_imbalance'):
         os.makedirs(file_path + '//order_volumn_imbalance')
     os.chdir(file_path + '//order_volumn_imbalance')
-    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
-
+    Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
+'''
 #################################################################################################
 from Multi_Processing import Spot_Incremental_Single_order_frequency
 def order_frequency(symbol, period, direction, begin_date=GV.begin_date(), end_date= GV.end_date()):
@@ -307,3 +301,4 @@ def order_frequency_derivative_2nd(symbol, period, direction, begin_date=GV.begi
         os.makedirs(file_path + '//order_frequency_derivative_2nd')
     os.chdir(file_path + '//order_frequency_derivative_2nd')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}.csv")
+'''

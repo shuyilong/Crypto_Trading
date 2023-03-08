@@ -9,13 +9,11 @@ begin_date = path_global.begin_date()
 end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//incremental_book_L2"
 
-
 @lru_cache()
 def process_data(date, symbol, period, data_type, direction):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
-    date_results = []
 
     if date == begin_date:
         file_read = [date, DC.Date_Addtion(date, "day", 1)]
@@ -31,7 +29,7 @@ def process_data(date, symbol, period, data_type, direction):
 
     file['volumn'] = file['amount'] * file['price']
     if direction == "both":
-        file = file[['volumn']].groupby(pd.Grouper(freq='1s')).count()
+        file = file[['volumn']].groupby(pd.Grouper(freq='1s')).sum()
     else:
         file = file[file['side'] == direction][['volumn']].groupby(pd.Grouper(freq='1s')).sum()
 

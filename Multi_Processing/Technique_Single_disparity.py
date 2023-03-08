@@ -1,12 +1,9 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 import Global_Variables as GV
 from functools import lru_cache
-import numpy as np
 
 begin_date = GV.begin_date()
 end_date = GV.end_date()

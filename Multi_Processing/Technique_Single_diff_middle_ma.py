@@ -1,12 +1,9 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 import Global_Variables as GV
 from functools import lru_cache
-from tqdm import tqdm
 
 begin_date = GV.begin_date()
 end_date = GV.end_date()
@@ -35,9 +32,9 @@ def process_data(date, symbol, long_period, short_period):
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
 
-    file['short_ma'] = file[['middle_price']].rolling(window = short_period, min_periods=2).mean().shift(1)
-    file['long_ma'] = file[['middle_price']].rolling(window=long_period, min_periods=2).mean().shift(1)
-    file['feature'] = 10000 * (file['short_ma'] - file['long_ma'])/file['short_ma']
+    file['short_ma'] = file[['middle_price']].rolling(window = short_period, min_periods=2).mean()
+    file['long_ma'] = file[['middle_price']].rolling(window=long_period, min_periods=2).mean()
+    file['feature'] = (10000 * (file['short_ma'] - file['long_ma'])/file['short_ma']).shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10 ** 9
 
     start_time = pd.Timestamp(date + ' 00:00:00')

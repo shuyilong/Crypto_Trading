@@ -8,7 +8,6 @@ def feature_examize(function_list, arg_list):
     ###         2) arg_list, [("BTC", 300), ("BTC", 300)]
     ###############################################################################
     Path = os.path.join(GV.path_middle(), "Features")
-    File_List = []
     for function, args in zip(function_list, arg_list):
         args_chain = '_'.join(str(arg) for arg in args)
         file_path = os.path.join(Path, function, f"{args_chain}.csv")
