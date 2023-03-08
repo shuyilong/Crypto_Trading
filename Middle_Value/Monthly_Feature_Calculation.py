@@ -2,7 +2,6 @@ import Global_Variables as GV
 import os
 import Feature
 
-###################################################################################################
 def feature_examize(function_list, arg_list):
     ###############################################################################
     ### INPUT : 1) function_list, e.g ['best_bid_diff','best_ask_diff']

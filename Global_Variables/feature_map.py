@@ -14,5 +14,7 @@ def feature_function_map():
            'n_depth' : list(product(symbols, period, n, data_type1, order_direction, start, end)),\
            'middle_mom' : list(product(symbols, period, start, end)),\
            'spread_return' : list(product(symbols, period, n, data_type2, start, end)),\
+           'middle_derivative' : list(product(symbols, period, start, end)),\
+
            }
     return Map
