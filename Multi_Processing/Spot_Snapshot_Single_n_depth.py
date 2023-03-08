@@ -15,7 +15,6 @@ def process_data(date, symbol, period, n, data_type, direction):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
-    date_results = []
 
     if date == begin_date:
         file_read = [date, DC.Date_Addtion(date, "day", 1)]

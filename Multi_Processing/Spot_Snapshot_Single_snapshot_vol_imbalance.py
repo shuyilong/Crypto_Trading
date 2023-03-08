@@ -1,24 +1,20 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
-from tqdm import tqdm
+import numpy as np
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//book_snapshot_25"
 
-
 @lru_cache()
-def process_data(date, symbol, period, n, data_type, target_data):
+def process_data(date, symbol, period, n, data_type):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
-    date_results = []
 
     if date == begin_date:
         file_read = [date, DC.Date_Addtion(date, "day", 1)]
@@ -32,8 +28,13 @@ def process_data(date, symbol, period, n, data_type, target_data):
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
 
-    file = file[['asks['+str(n)+'].amount','bids['+str(n)+'].amount']].groupby(pd.Grouper(freq='1s')).mean()
-    file['vol_imb'] = file['bids['+str(n)+'].amount'] / (file['asks['+str(n)+'].amount'] + file['bids['+str(n)+'].amount'])
+    bid_amount = [f"bids[{i}].amount" for i in range(n)]
+    ask_amount = [f"asks[{i}].amount" for i in range(n)]
+    file['bid_amount'] = np.sum(file[bid_amount].values, axis=1)
+    file['ask_amount'] = np.sum(file[ask_amount].values, axis=1)
+
+    file = file[['bid_amount','ask_amount']].groupby(pd.Grouper(freq='1s')).sum()
+    file['vol_imb'] = file['bid_amount'] / (file['ask_amount'] + file['bid_amount'])
 
     rolling = file['vol_imb'].rolling(window=period, min_periods=1)
     func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \

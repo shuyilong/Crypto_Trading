@@ -1,12 +1,10 @@
 import os
 import re
-import time
 import numpy as np
 import pandas as pd
 import Data_Clean as DC
 from Global_Variables import path_global
 from functools import lru_cache
-from tqdm import tqdm
 
 begin_date = path_global.begin_date()
 end_date = path_global.end_date()
@@ -18,7 +16,6 @@ def process_data(date, symbol, period, lag):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
-    date_results = []
 
     if date == begin_date:
         file_read = [date, DC.Date_Addtion(date, "day", 1)]

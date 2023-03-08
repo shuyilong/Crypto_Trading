@@ -1,7 +1,6 @@
 import os
 import Global_Variables as GV
 import Data_Clean as DC
-import re
 import pandas as pd
 import multiprocessing as mp
 from tqdm import tqdm
@@ -17,8 +16,6 @@ def best_diff(symbol, period, direction, begin_date=GV.begin_date(), end_date= G
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//"+symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -57,8 +54,6 @@ def n_depth(symbol, period, n, data_type, direction, begin_date=GV.begin_date(),
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -125,9 +120,6 @@ def spread_return(symbol, period, n, data_type, begin_date=GV.begin_date(), end_
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -165,9 +157,6 @@ def middle_derivative(symbol, period, begin_date=GV.begin_date(), end_date= GV.e
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -206,9 +195,6 @@ def middle_derivative_2nd(symbol, period, begin_date=GV.begin_date(), end_date= 
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -246,8 +232,6 @@ def middle_std(symbol, period, direction, begin_date=GV.begin_date(), end_date= 
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -272,23 +256,19 @@ def middle_std(symbol, period, direction, begin_date=GV.begin_date(), end_date= 
         os.makedirs(file_path + '//middle_std')
     os.chdir(file_path + '//middle_std')
     Final_Result_List.to_csv(f"{symbol}_{period}_{direction}_{begin_date}_{end_date}.csv")
-'''
+
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_bipower_var
-def bipower_var(symbol, period, lag, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def bipower_var(symbol, period, lag, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating the bipower-variance of middle price;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
     ###         3) lag, int, lagged period
     ###         4) begin_date, default in "2022-10-01"
     ###         5) end, default in "2022-10-01"
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -298,8 +278,8 @@ def bipower_var(symbol, period, lag, begin_date=path_global.begin_date(), end_da
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
         results = [
-            pool.apply_async(Spot_Snapshot_Single_bipower_var.process_data, args=(date, symbol, period, lag)) \
-            for date in date_range]
+            pool.apply_async(Spot_Snapshot_Single_bipower_var.process_data, \
+                             args=(date, symbol, period, lag)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -308,27 +288,23 @@ def bipower_var(symbol, period, lag, begin_date=path_global.begin_date(), end_da
 
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
-    file_path = path_global.path_middle() + "//Features"
+    file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//bipower_var'):
         os.makedirs(file_path + '//bipower_var')
     os.chdir(file_path + '//bipower_var')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{lag}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{lag}_{begin_date}_{end_date}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_realized_quarticity
-def realized_quarticity(symbol, period, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def realized_quarticity(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating the realized_quarticity of middle price;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
     ###         3) begin_date, default in "2022-10-01"
     ###         4) end, default in "2022-10-01"
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -338,8 +314,8 @@ def realized_quarticity(symbol, period, begin_date=path_global.begin_date(), end
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
         results = [
-            pool.apply_async(Spot_Snapshot_Single_realized_quarticity.process_data, args=(date, symbol, period)) \
-            for date in date_range]
+            pool.apply_async(Spot_Snapshot_Single_realized_quarticity.process_data, \
+                             args=(date, symbol, period)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -348,28 +324,24 @@ def realized_quarticity(symbol, period, begin_date=path_global.begin_date(), end
 
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
-    file_path = path_global.path_middle() + "//Features"
+    file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//realized_quarticity'):
         os.makedirs(file_path + '//realized_quarticity')
     os.chdir(file_path + '//realized_quarticity')
-    Final_Result_List.to_csv(f"{symbol}_{period}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_snapshot_vol_imbalance
-def snapshot_vol_imbalance(symbol, period, n, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def snapshot_vol_imbalance(symbol, period, n, data_type, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating the realized_quarticity of middle price;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
     ###         3) n, n-th ask and bid, from 0 to 24
     ###         4) begin_date, default in "2022-10-01"
     ###         5) end, default in "2022-10-01"
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
-    files = sorted(os.listdir())
-    match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
-    before, after = files[0][:match.start()], files[0][match.end():]
     Date_Range = DC.get_date_range(begin_date, end_date)
 
     cpu_num = 32
@@ -379,8 +351,8 @@ def snapshot_vol_imbalance(symbol, period, n, data_type, begin_date=path_global.
         date_range = Date_Range[i * cpu_num: (1 + i) * cpu_num]
         pool = mp.Pool(processes=cpu_num)
         results = [
-            pool.apply_async(Spot_Snapshot_Single_snapshot_vol_imbalance.process_data, args=(date, symbol, period, n, data_type)) \
-            for date in date_range]
+            pool.apply_async(Spot_Snapshot_Single_snapshot_vol_imbalance.process_data, \
+                             args=(date, symbol, period, n, data_type)) for date in date_range]
         for result in tqdm(results):
             Final_Result = pd.concat([Final_Result, result.get()])
         Final_Result_List.append(Final_Result)
@@ -389,9 +361,8 @@ def snapshot_vol_imbalance(symbol, period, n, data_type, begin_date=path_global.
 
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
-    file_path = path_global.path_middle() + "//Features"
+    file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//snapshot_vol_imbalance'):
         os.makedirs(file_path + '//snapshot_vol_imbalance')
     os.chdir(file_path + '//snapshot_vol_imbalance')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
-'''
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}_{begin_date}_{end_date}.csv")
