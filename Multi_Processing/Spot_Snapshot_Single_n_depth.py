@@ -1,20 +1,17 @@
 import os
 import re
-import time
-import numpy as np
 import pandas as pd
 import Data_Clean as DC
-from Global_Variables import path_global
+import Global_Variables as GV
 from functools import lru_cache
-from tqdm import tqdm
 
-begin_date = path_global.begin_date()
-end_date = path_global.end_date()
-Path = path_global.path_spot() + "//binance//book_snapshot_25"
+begin_date = GV.begin_date()
+end_date = GV.end_date()
+Path = GV.path_spot() + "//binance//book_snapshot_25"
 
 
 @lru_cache()
-def process_data(date, symbol, period, n, data_type):
+def process_data(date, symbol, period, n, data_type, direction):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]
@@ -32,8 +29,15 @@ def process_data(date, symbol, period, n, data_type):
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
 
-    price_list = [f"asks[{i}].price" for i in range(n)]
-    amount_list = [f"asks[{i}].amount" for i in range(n)]
+    if direction == "bid":
+        price_list = [f"bids[{i}].price" for i in range(n)]
+        amount_list = [f"bids[{i}].amount" for i in range(n)]
+    elif direction == "ask":
+        price_list = [f"asks[{i}].price" for i in range(n)]
+        amount_list = [f"asks[{i}].amount" for i in range(n)]
+    else:
+        raise ValueError("direction should be ask or bid")
+
     file['n_depth'] = sum(file[price_list[i]] * file[amount_list[i]] for i in range(n))
     file = file[['n_depth']].groupby(pd.Grouper(freq='1s')).mean()
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
@@ -43,7 +47,7 @@ def process_data(date, symbol, period, n, data_type):
     func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
                  "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
     file['feature'] = func_dict[data_type]().shift(1)
-    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10**9
+    file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10 ** 9
 
     start_time = pd.Timestamp(date + ' 00:00:00')
     end_time = pd.Timestamp(date + ' 23:59:59')
