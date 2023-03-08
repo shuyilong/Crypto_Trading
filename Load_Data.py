@@ -4,6 +4,7 @@ import re
 import Middle_Value as MV
 import Global_Variables as GV
 import Feature
+import multiprocessing as mp
 ###############################################################################
 ###############################################################################
 
@@ -94,7 +95,35 @@ def Load_Feature_Data(function_list, arg_list):
     return Feature_Data
 
 
+###################################################################################################
+from Multi_Processing import Load_Data_use
+import tqdm
 
+def Load_Feature_Daily_Data(function_list, arg_list):
+    ###############################################################################
+    ### The difference from the previous function is that this function is accelerated by parallel computing,
+    #$$ But it can only calculate daily data.
+    ### INPUT : 1) function_list, e.g ['best_bid_diff','best_ask_diff']
+    ###         2) arg_list, [("BTC", 300), ("BTC", 300)]
+    ### OUTPUT : Single file data in DataFrame format
+    ###############################################################################
+    cpu_num = 32
+    File_List = []
+    for i in range(len(arg_list) // cpu_num + (len(arg_list) % cpu_num > 0)):
+        function_range = function_list[i * cpu_num: (1 + i) * cpu_num]
+        arg_range = arg_list[i * cpu_num: (1 + i) * cpu_num]
+        pool = mp.Pool(processes=cpu_num)
+        results = [pool.apply_async(Load_Data_use.load_feature_daily_data.process_data, \
+                                    args=(function, args,)) for function, args in zip(function_list, arg_list)]
+        for result in tqdm(results):
+            File_List.append(result.get())
+        pool.close()
+        pool.join()
+
+    Feature_Data = File_List[0]
+    for i in range(1,len(File_List)):
+        Feature_Data = pd.merge(Feature_Data, File_List[i], how='left', on='second_timestamp')
+    return Feature_Data
 
         
         

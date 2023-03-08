@@ -13,7 +13,7 @@ def best_diff(symbol, period, direction, begin_date=GV.begin_date(), end_date= G
     ###         2) period, period of return calculation, in seconds
     ###         3) direction, choose from "ask" and "bid"
     ###         3) begin_date, default in "2022-10-01"
-    ###         4) end, default in "2022-10-01"
+    ###         4) end, default in "2023-02-21"
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//"+symbol)
@@ -53,7 +53,7 @@ def n_depth(symbol, period, n, data_type, direction, begin_date=GV.begin_date(),
     ###         4) data_type, choose from "mean","max","min","std","median","sum"
     ###         5) direction, choose from "ask" and "bid"
     ###         5) begin_date, default in "2022-10-01"
-    ###         6) end, default in "2022-10-01"
+    ###         6) end, default in "2023-02-21"
     ###############################################################################
     Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
@@ -83,31 +83,22 @@ def n_depth(symbol, period, n, data_type, direction, begin_date=GV.begin_date(),
     os.chdir(file_path + '//n_depth')
     Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}_{direction}_{begin_date}_{end_date}.csv")
 
-'''
-
 ###################################################################################################
-def window_return(symbol, period, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def middle_mom(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating the statistic of return;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
-    ###         3) data_type, choose from "mean","max","min","std","median","sum"
     ###         4) begin_date, default in "2022-10-01"
-    ###         5) end, default in "2022-10-01"
+    ###         5) end, default in "2023-02-21"
     ###############################################################################
-    Path = path_global.path_middle_second_data()
+    Path = GV.path_middle_second_data()
     os.chdir(Path)
     file = pd.read_csv(symbol + "_Second_data.csv")
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
-    file['ret'] = (file['middle_price'] / file['middle_price'].shift(1) - 1) * 10000
-
-    rolling = file['ret'].rolling(window=period, min_periods=1)
-    func_dict = {"mean": rolling.mean, "median": rolling.median, "max": rolling.max, \
-                 "min": rolling.min, "std": rolling.std, "sum": rolling.sum}
-    file['feature'] = func_dict[data_type]().shift(1)
+    file['feature'] = ((file['middle_price'] / file['middle_price'].shift(period) - 1) * 10000).shift(1)
     file['second_timestamp'] = pd.DatetimeIndex(file.index).astype(int) // 10 ** 9
 
     start_time = pd.Timestamp(begin_date + ' 00:00:00')
@@ -115,25 +106,24 @@ def window_return(symbol, period, data_type, begin_date=path_global.begin_date()
     mask = file.index.slice_indexer(start_time, end_time)
     file = file[['second_timestamp', 'feature']].iloc[mask]
     file.index = range(len(file))
-    file_path = path_global.path_middle() + "//Features"
+    file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//window_return'):
         os.makedirs(file_path + '//window_return')
     os.chdir(file_path + '//window_return')
-    file.to_csv(f"{symbol}_{period}_{data_type}.csv")
+    file.to_csv(f"{symbol}_{period}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_spread_return
-def spread_return(symbol, period, n, data_type, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
+def spread_return(symbol, period, n, data_type, begin_date=GV.begin_date(), end_date= GV.end_date()):
     ###############################################################################
-    ### This function is for calculating the statistic of spread return;
     ### INPUT : 1) symbol, e.g: "BTC"
     ###         2) period, period of return calculation, in seconds
     ###         3) data_type, choose from "mean","max","min","std","median","sum"
     ###         4) n, n-th ask and bid, from 0 to 24
     ###         5) begin_date, default in "2022-10-01"
-    ###         6) end, default in "2022-10-01"
+    ###         6) end, default in "2023-02-21"
     ###############################################################################
-    Path = path_global.path_spot() + "//binance//book_snapshot_25"
+    Path = GV.path_spot() + "//binance//book_snapshot_25"
     os.chdir(Path + "//" + symbol)
     files = sorted(os.listdir())
     match = re.search(r"\d{4}-\d{2}-\d{2}", files[0])
@@ -156,12 +146,13 @@ def spread_return(symbol, period, n, data_type, begin_date=path_global.begin_dat
 
     Final_Result_List = pd.concat(Final_Result_List)
     Final_Result_List.index = range(len(Final_Result_List))
-    file_path = path_global.path_middle() + "//Features"
+    file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//spread_return'):
         os.makedirs(file_path + '//spread_return')
     os.chdir(file_path + '//spread_return')
-    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}.csv")
+    Final_Result_List.to_csv(f"{symbol}_{period}_{n}_{data_type}_{begin_date}_{end_date}.csv")
 
+'''
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_snapshot_derivative
 def snapshot_derivative(symbol, period, n, data_type, target_data, begin_date=path_global.begin_date(), end_date= path_global.end_date()):
