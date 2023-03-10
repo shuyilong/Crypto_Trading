@@ -3,8 +3,7 @@ import pandas as pd
 import re
 import Middle_Value as MV
 import Global_Variables as GV
-import Feature
-import multiprocessing as mp
+from tqdm import tqdm
 ###############################################################################
 ###############################################################################
 
@@ -67,7 +66,7 @@ def Load_Future_Return_Diff_Data(pair, period, start=GV.begin_date(), end=GV.end
         return pd.read_csv(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv")
 
 ###################################################################################################
-def Load_Feature_Data(function_list, arg_list):
+def Load_Feature_Data(Feature_list, date):
     ###############################################################################
     ### This function is for loading feature data;
     ### INPUT : 1) function_list, e.g ['best_bid_diff','best_ask_diff']
@@ -75,24 +74,16 @@ def Load_Feature_Data(function_list, arg_list):
     ### OUTPUT : Single file data in DataFrame format
     ###############################################################################
     Path = os.path.join(GV.path_middle(), "Features")
-    File_List = []
-    for function, args in zip(function_list, arg_list):
-        args_chain = '_'.join(str(arg) for arg in args)
-        file_path = os.path.join(Path, function, f"{args_chain}.csv")
-        if os.path.exists(file_path):
-            file = pd.read_csv(file_path)[['second_timestamp', 'feature']]
-            file.columns = ['second_timestamp', function + "_" + args_chain]
-            File_List.append(file)
-        else:
-            getattr(Feature, function)(*args)
-            file = pd.read_csv(file_path)[['second_timestamp', 'feature']]
-            file.columns = ['second_timestamp', function + "_" + args_chain]
-            File_List.append(file)
-
-    Feature_Data = File_List[0]
-    for i in range(1,len(File_List)):
-        Feature_Data = pd.merge(Feature_Data, File_List[i], how='left', on='second_timestamp')
+    Feature_Data = pd.DataFrame({"second_timestamp": pd.date_range(start=date+" 00:00:00", \
+                                end=date + " 23:59:59", freq='1s').astype(int) // 10**9})
+    for feature in Feature_list:
+        print(feature)
+        File_List = os.listdir(os.path.join(Path, feature))
+        for file in tqdm(File_List):
+            feature_file = pd.read_csv(os.path.join(Path, feature, file))
+            Feature_Data = pd.merge(Feature_Data, feature_file, how='left', on='second_timestamp')
     return Feature_Data
+
 
 
         

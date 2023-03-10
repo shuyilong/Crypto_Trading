@@ -1,5 +1,4 @@
 from itertools import product
-from itertools import combinations
 
 symbols = ["BTC", "ETH"]
 period = [15, 60, 300, 600]
