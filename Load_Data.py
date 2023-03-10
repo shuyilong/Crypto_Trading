@@ -81,7 +81,7 @@ def Load_Feature_Data(symbol, date, Feature_List):
         File_List = os.listdir(os.path.join(Path, feature))
         File = [file for file in File_List if file.split("_")[0] == symbol and \
                      file[-14:-4] == date][0]
-        File_Data = pd.read_csv(os.path.join(Path, feature, File))
+        File_Data = pd.read_csv(os.path.join(Path, feature, File)).iloc[:,1:]
         Feature_Data = pd.merge(Feature_Data, File_Data, how='left', on='second_timestamp')
     return Feature_Data
 

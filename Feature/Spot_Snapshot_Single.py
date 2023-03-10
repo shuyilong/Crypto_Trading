@@ -103,9 +103,9 @@ def middle_mom(symbol, period, begin_date=GV.begin_date(), end_date= GV.end_date
     file.index = range(len(file))
     file_path = GV.path_middle() + "//Features"
     if not os.path.exists(file_path + '//window_return'):
-        os.makedirs(file_path + '//window_return')
-    os.chdir(file_path + '//window_return')
-    file.to_csv(f"{symbol}_{period}.csv")
+        os.makedirs(file_path + '//middle_mom')
+    os.chdir(file_path + '//middle_mom')
+    file.to_csv(f"{symbol}_{period}_{begin_date}_{end_date}.csv")
 
 ###################################################################################################
 from Multi_Processing import Spot_Snapshot_Single_spread_return

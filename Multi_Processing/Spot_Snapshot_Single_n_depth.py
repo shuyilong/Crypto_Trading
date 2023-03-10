@@ -29,11 +29,11 @@ def process_data(date, symbol, period, n, data_type, direction):
     file = file.set_index('second_timestamp')
 
     if direction == "bid":
-        price_list = [f"bids[{i}].price" for i in range(n)]
-        amount_list = [f"bids[{i}].amount" for i in range(n)]
+        price_list = [f"bids[{i}].price" for i in range(n+1)]
+        amount_list = [f"bids[{i}].amount" for i in range(n+1)]
     elif direction == "ask":
-        price_list = [f"asks[{i}].price" for i in range(n)]
-        amount_list = [f"asks[{i}].amount" for i in range(n)]
+        price_list = [f"asks[{i}].price" for i in range(n+1)]
+        amount_list = [f"asks[{i}].amount" for i in range(n+1)]
     else:
         raise ValueError("direction should be ask or bid")
 
