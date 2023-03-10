@@ -11,6 +11,9 @@ def path_original():
 def path_middle_second_data():
     return "E://Middle Value//Middle_Second_Data"
 
+def path_combined_features():
+    return "E://Middle Value//Combined_Features"
+
 ### variable
 def begin_date():
     return "2022-10-01"
