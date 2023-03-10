@@ -66,22 +66,23 @@ def Load_Future_Return_Diff_Data(pair, period, start=GV.begin_date(), end=GV.end
         return pd.read_csv(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv")
 
 ###################################################################################################
-def Load_Feature_Data(Feature_list, date):
+def Load_Feature_Data(symbol, date, Feature_List):
     ###############################################################################
     ### This function is for loading feature data;
     ### INPUT : 1) function_list, e.g ['best_bid_diff','best_ask_diff']
     ###         2) arg_list, [("BTC", 300), ("BTC", 300)]
     ### OUTPUT : Single file data in DataFrame format
     ###############################################################################
-    Path = os.path.join(GV.path_middle(), "Features")
+    Path = GV.path_combined_features()
     Feature_Data = pd.DataFrame({"second_timestamp": pd.date_range(start=date+" 00:00:00", \
                                 end=date + " 23:59:59", freq='1s').astype(int) // 10**9})
-    for feature in Feature_list:
+    for feature in Feature_List:
         print(feature)
         File_List = os.listdir(os.path.join(Path, feature))
-        for file in tqdm(File_List):
-            feature_file = pd.read_csv(os.path.join(Path, feature, file))
-            Feature_Data = pd.merge(Feature_Data, feature_file, how='left', on='second_timestamp')
+        File = [file for file in File_List if file.split("_")[0] == symbol and \
+                     file[-14:-4] == date][0]
+        File_Data = pd.read_csv(os.path.join(Path, feature, File))
+        Feature_Data = pd.merge(Feature_Data, File_Data, how='left', on='second_timestamp')
     return Feature_Data
 
 
