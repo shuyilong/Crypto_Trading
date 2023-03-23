@@ -1,7 +1,6 @@
 import Load_Data as LD
 import Global_Variables as GV
 import os
-os.chdir(GV.path_middle() + "//Features")
 
 #####################################################################################################
 ### 1. Load Data : Features and Price Diff
