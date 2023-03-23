@@ -10,7 +10,7 @@ end_date = path_global.end_date()
 Path = path_global.path_spot() + "//binance//incremental_book_L2"
 
 @lru_cache()
-def process_data(date, symbol, period, data_type):
+def process_data(date, symbol, period):
     os.chdir(Path + "//" + symbol)
     match = re.search(r"\d{4}-\d{2}-\d{2}", os.listdir()[0])
     before, after = os.listdir()[0][:match.start()], os.listdir()[0][match.end():]

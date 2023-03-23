@@ -1,6 +1,6 @@
 ### Path
 def path_middle():
-    return "E://Middle Value"
+    return "F://Middle Value"
 
 def path_spot():
     return "D://Cryptocurrency Data//Spot"
@@ -9,10 +9,10 @@ def path_original():
     return "D://Cryptocurrency Data"
 
 def path_middle_second_data():
-    return "E://Middle Value//Middle_Second_Data"
+    return "F://Middle Value//Middle_Second_Data"
 
 def path_combined_features():
-    return "E://Middle Value//Combined_Features"
+    return "F://Middle Value//Combined_Features"
 
 ### variable
 def begin_date():

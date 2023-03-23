@@ -50,7 +50,7 @@ def Load_Single_Data_File(product, exchange, data_type, date, symbol=None, Path 
     return data
 
 ###################################################################################################
-def Load_Future_Return_Diff_Data(pair, period, start=GV.begin_date(), end=GV.end_date()):
+def Load_Future_Return_Diff_Data(pair, interval, start=GV.begin_time(), end=GV.end_time()):
     ###############################################################################
     ### This function is for loading future return diff;
     ### INPUT : 1) pair, e.g ['BTC','ETH']
@@ -58,12 +58,12 @@ def Load_Future_Return_Diff_Data(pair, period, start=GV.begin_date(), end=GV.end
     ### OUTPUT : Single file data in DataFrame format
     ###############################################################################
     os.chdir(GV.path_middle() + "//" + "Future_Return_Diff")
-    if os.path.exists(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv"):
-        return pd.read_csv(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv")
+    if os.path.exists(f"{pair[0]}_{pair[1]}_{interval}_{start[:10]}_{end[:10]}.csv"):
+        return pd.read_csv(f"{pair[0]}_{pair[1]}_{interval}_{start[:10]}_{end[:10]}.csv")
     else:
-        MV.future_return_diff(pair, period, start, end)
+        MV.future_return_diff(pair, interval, start, end)
         os.chdir(GV.path_middle() + "//" + "Future_Return_Diff")
-        return pd.read_csv(f"{pair[0]}_{pair[1]}_{period}_{start}_{end}.csv")
+        return pd.read_csv(f"{pair[0]}_{pair[1]}_{interval}_{start[:10]}_{end[:10]}.csv")
 
 ###################################################################################################
 def Load_Feature_Data(symbol, date, Feature_List):

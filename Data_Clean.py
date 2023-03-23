@@ -55,12 +55,13 @@ def get_date_range(begin_date, end_date, step=1):
 
 
 
-def time_interval(begin_time, end_time, interval):
+def time_interval(begin_time, end_time, interval, istimestamp = False):
 ###############################################################################
 ### This function is for getting all times between begin_date and end_date;
 ### INPUT : 1) begin_time, e.g : "2022-10-10 12-20-55"
 ###         2) end_date, e.g : "2022-10-10 22-20-55"
 ###         3) interval, in seconds
+###         4) istimestapm, if true return timestamp
 ### OUTPUT : list of all time
 ###############################################################################
     start = datetime.datetime.strptime(begin_time, '%Y-%m-%d %H:%M:%S')
@@ -70,6 +71,9 @@ def time_interval(begin_time, end_time, interval):
     while current < end:
         result.append(current.strftime('%Y-%m-%d %H:%M:%S'))
         current += datetime.timedelta(seconds=interval)
+
+    if istimestamp:
+        result = [int(time.mktime(datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S').timetuple())) for dt in result]
     return result
 
 
@@ -126,3 +130,4 @@ def Timestamp_List(start_time, end_time, interval):
     for second in range(second_start, second_end, interval):
         timestamps.append(second)
     return timestamps
+

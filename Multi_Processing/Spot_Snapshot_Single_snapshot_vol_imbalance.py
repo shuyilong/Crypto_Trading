@@ -28,8 +28,8 @@ def process_data(date, symbol, period, n, data_type):
     file['second_timestamp'] = pd.to_datetime(file['second_timestamp'], unit='s')
     file = file.set_index('second_timestamp')
 
-    bid_amount = [f"bids[{i}].amount" for i in range(n)]
-    ask_amount = [f"asks[{i}].amount" for i in range(n)]
+    bid_amount = [f"bids[{i}].amount" for i in range(n+1)]
+    ask_amount = [f"asks[{i}].amount" for i in range(n+1)]
     file['bid_amount'] = np.sum(file[bid_amount].values, axis=1)
     file['ask_amount'] = np.sum(file[ask_amount].values, axis=1)
 

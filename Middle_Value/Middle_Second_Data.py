@@ -10,6 +10,7 @@ from tqdm import tqdm
 def middle_second_data():
     ###############################################################################
     ### This function is for calculating middle second data;
+    ### The output of this function is the close price which means return the last middle price in each second
     ###############################################################################
     Path = path_global.path_spot() + "//binance//book_snapshot_25"
     currency_list = os.listdir(Path)
