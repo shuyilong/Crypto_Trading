@@ -3,10 +3,10 @@ def path_middle():
     return "F://Middle Value"
 
 def path_spot():
-    return "D://Cryptocurrency Data//Spot"
+    return "E://Cryptocurrency Data//Spot"
 
 def path_original():
-    return "D://Cryptocurrency Data"
+    return "E://Cryptocurrency Data"
 
 def path_middle_second_data():
     return "F://Middle Value//Middle_Second_Data"

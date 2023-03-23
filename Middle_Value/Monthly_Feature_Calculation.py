@@ -1,6 +1,7 @@
 import Global_Variables as GV
 import os
 import Feature
+from tqdm import tqdm
 
 def feature_examize(function_list, arg_list):
     ###############################################################################
@@ -19,5 +20,5 @@ def feature_examize(function_list, arg_list):
 
 function_map = GV.feature_function_map()
 def monthly_feature_cal():
-    for function, args in function_map.items():
+    for function, args in tqdm(function_map.items()):
         feature = feature_examize([function] * len(args), args)

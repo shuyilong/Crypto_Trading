@@ -39,8 +39,7 @@ def feature_function_map():
            'trade_frequency_derivative_2nd' : list(product(symbols, period, trade_direction, start, end)),\
            'diff_middle_ma' : [(sym, short, long, st, en) for sym, short, long, st, en in \
                 product(symbols, period, period, start, end) if short < long], \
-           'diff_middle_ema' : [(sym, short, long, st, en) for sym, short, long, st, en in \
-                product(symbols, period, period, start, end) if short < long], \
+           'diff_middle_ema' : list(product(symbols, ['15'], ['60'], start, end)),\
            'slow_sto' : list(product(symbols, period, start, end)),\
            'rsi' : list(product(symbols, period, start, end)),\
            'disparity' : list(product(symbols, period, start, end)),\
