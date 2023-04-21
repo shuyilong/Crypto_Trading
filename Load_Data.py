@@ -66,6 +66,23 @@ def Load_Future_Return_Diff_Data(pair, interval, start=GV.begin_time(), end=GV.e
         return pd.read_csv(f"{pair[0]}_{pair[1]}_{interval}_{start[:10]}_{end[:10]}.csv")
 
 ###################################################################################################
+def Load_Future_Single_Return_Data(currency, interval, start=GV.begin_time(), end=GV.end_time()):
+    ###############################################################################
+    ### This function is for loading future return diff;
+    ### INPUT : 1) currency, e.g 'BTC','ETH'
+    ###         2) interval, int in second
+    ### OUTPUT : Single file data in DataFrame format
+    ###############################################################################
+    os.chdir(GV.path_middle() + "//" + "Single_Future_Return")
+    if os.path.exists(f"{currency}_{interval}_{start[:10]}_{end[:10]}.csv"):
+        return pd.read_csv(f"{currency}_{interval}_{start[:10]}_{end[:10]}.csv")
+    else:
+        data = MV.future_period_return(currency, start, end, interval)
+        os.chdir(GV.path_middle() + "//" + "Single_Future_Return")
+        data.to_csv(f"{currency}_{interval}_{start[:10]}_{end[:10]}.csv")
+        return data
+
+###################################################################################################
 def Load_Feature_Data(symbol, date, Feature_List):
     ###############################################################################
     ### This function is for loading feature data;
@@ -77,7 +94,6 @@ def Load_Feature_Data(symbol, date, Feature_List):
     Feature_Data = pd.DataFrame({"second_timestamp": pd.date_range(start=date+" 00:00:00", \
                                 end=date + " 23:59:59", freq='1s').astype(int) // 10**9})
     for feature in Feature_List:
-        print(feature)
         File_List = os.listdir(os.path.join(Path, feature))
         File = [file for file in File_List if file.split("_")[0] == symbol and \
                      file[-14:-4] == date][0]

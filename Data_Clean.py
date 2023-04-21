@@ -1,5 +1,7 @@
 import datetime
 import time
+import numpy as np
+import copy
 ###############################################################################
 ###############################################################################
 
@@ -131,3 +133,19 @@ def Timestamp_List(start_time, end_time, interval):
         timestamps.append(second)
     return timestamps
 
+def Clean_Outlier(data, std_num=3, standarization = True):
+    series = copy.deepcopy(data)
+    mean = np.mean(series)
+    std = np.std(series)
+    min_value = mean - std_num * std
+    max_value = mean + std_num * std
+    if len(series[series < min_value]) > 0:
+        series.loc[series < min_value] = min_value
+    if len(series[series > max_value]) > 0:
+        series.loc[series > max_value] = max_value
+
+    if standarization:
+        mean = np.mean(series)
+        std = np.std(series)
+        series = (series - mean) / std
+    return series

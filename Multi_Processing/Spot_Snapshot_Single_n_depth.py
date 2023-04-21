@@ -37,7 +37,10 @@ def process_data(date, symbol, period, n, data_type, direction):
     else:
         raise ValueError("direction should be ask or bid")
 
-    file['n_depth'] = sum(file[price_list[i]] * file[amount_list[i]] for i in range(n))
+    file['n_depth'] = 0
+    for i in range(n+1):
+        file['n_depth'] = file['n_depth'] + file[price_list[i]] * file[amount_list[i]]
+
     file = file[['n_depth']].groupby(pd.Grouper(freq='1s')).mean()
     all_seconds = pd.date_range(start=file.index.min(), end=file.index.max(), freq='1s')
     file = file.reindex(all_seconds).fillna(method="ffill")
